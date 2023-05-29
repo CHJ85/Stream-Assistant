@@ -11,6 +11,7 @@ This userscript adds support for additional keyboard shortucts and features incl
  - Plus / Minus or > / < - Change playback speed faster / slower
  - A - Change aspect ratio (default, zoom, stretch)
  - Ctrl+Up / Ctrl+Down - Change brightness
+ - B - Video filters: black & white and invert colors
 # Beta features
  - O - Enable surround sound (unable to turn off without having to refresh the webpage)
 
