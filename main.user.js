@@ -20,6 +20,7 @@
     const volume = 0.1;
     const playbackSpeedStep = 0.25;
     const brightnessStep = 0.1; // Adjust the step as needed
+    const hueStep = 10; // Adjust the step as needed
 
     // functions
     const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
@@ -33,6 +34,7 @@
     let equalizerEnabled = false;
     let equalizerPreset = null;
     let isBlackAndWhite = false;
+    let hue = 0;
 
     // register keyboard shortcuts
     document.addEventListener('keydown', (e) => {
@@ -42,6 +44,12 @@
         } else if (e.ctrlKey && e.key === "ArrowDown") {
             e.preventDefault(); // Prevent default browser behavior (scrolling)
             decreaseBrightness();
+        } else if (e.ctrlKey && e.key === "ArrowRight") {
+            e.preventDefault(); // Prevent default browser behavior (scrolling)
+            increaseHue();
+        } else if (e.ctrlKey && e.key === "ArrowLeft") {
+            e.preventDefault(); // Prevent default browser behavior (scrolling)
+            decreaseHue();
         } else {
             loadVideo();
 
@@ -304,12 +312,28 @@
             if (!isBlackAndWhite) {
                 video.style.filter = 'grayscale(100%)';
                 isBlackAndWhite = true;
-            } else if (isBlackAndWhite && video.style.filter !== 'invert(100%)') {
+            } else if (video.style.filter === 'grayscale(100%)') {
+                video.style.filter = 'sepia(100%)';
+            } else if (video.style.filter === 'sepia(100%)') {
                 video.style.filter = 'invert(100%)';
             } else {
                 video.style.filter = 'none';
                 isBlackAndWhite = false;
             }
+        }
+    }
+
+    function increaseHue() {
+        if (video) {
+            hue = (hue + hueStep) % 360;
+            video.style.filter = `hue-rotate(${hue}deg)`;
+        }
+    }
+
+    function decreaseHue() {
+        if (video) {
+            hue = (hue - hueStep) % 360;
+            video.style.filter = `hue-rotate(${hue}deg)`;
         }
     }
 })();
