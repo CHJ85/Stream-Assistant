@@ -1,14 +1,13 @@
 // ==UserScript==
-// @name         Max, HBO Max and Discovery+ Keyboard Shortcuts
-// @namespace    https://github.com/chj85/HBOMaxKeyboard
-// @version      0.28
-// @description  Adds keyboard shortcuts to (HBO)Max and Discovery Plus' video player.
+// @name         Max, HBO Max and Discovery+ Keyboard Shortcuts, Features and Ad Blocking
+// @namespace    https://github.com/chj85/HBOMax-and-Discovery-Plus-Keyboard-Shortcuts-and-Features
+// @version      1.0
+// @description  Adds keyboard shortcuts to (HBO)Max and Discovery Plus' video player with ad blocking and auto-skip functionality.
 // @author       CHJ85
 // @match        *://*.max.com/*
 // @match        https://play.hbomax.com/*
 // @match        *://www.discoveryplus.com/video/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hbomax.com
-// @license      MIT
 // @grant        none
 // ==/UserScript==
 
@@ -39,6 +38,7 @@
     let hue = 0;
     let saturation = 1.0;
     let contrast = 1.0;
+    let isAdBlocked = false;
 
     // register keyboard shortcuts
     document.addEventListener('keydown', (e) => {
@@ -162,6 +162,7 @@
             video = document.querySelector('video');
             fastSeek = typeof video.fastSeek === 'function';
             originalAspectRatio = video.style.objectFit;
+            addAdBlockObserver();
         }
     }
 
@@ -378,6 +379,44 @@
         if (video) {
             contrast = clamp(contrast - contrastStep, 0, 2);
             video.style.filter = `contrast(${contrast})`;
+        }
+    }
+
+    function addAdBlockObserver() {
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes && mutation.addedNodes.length > 0) {
+                    const adContainer = findAdContainer(mutation.addedNodes);
+                    if (adContainer) {
+                        blockAd(adContainer);
+                    }
+                }
+            });
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    function findAdContainer(nodes) {
+        for (let i = 0; i < nodes.length; i++) {
+            const node = nodes[i];
+            if (node.classList && node.classList.contains("ad-container")) {
+                return node;
+            } else if (node.childNodes.length > 0) {
+                const adContainer = findAdContainer(node.childNodes);
+                if (adContainer) {
+                    return adContainer;
+                }
+            }
+        }
+        return null;
+    }
+
+    function blockAd(adContainer) {
+        adContainer.style.display = "none";
+        if (video && !isAdBlocked) {
+            video.play();
+            isAdBlocked = true;
         }
     }
 })();
