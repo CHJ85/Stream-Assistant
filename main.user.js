@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         Max, HBO Max and Discovery+ Keyboard Shortcuts
 // @namespace    https://github.com/chj85/HBOMaxKeyboard
-// @version      0.27
+// @version      0.28
 // @description  Adds keyboard shortcuts to (HBO)Max and Discovery Plus' video player.
 // @author       CHJ85
-// @author       Rafalb8
 // @match        *://*.max.com/*
 // @match        https://play.hbomax.com/*
 // @match        *://www.discoveryplus.com/video/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hbomax.com
+// @license      MIT
 // @grant        none
 // ==/UserScript==
 
@@ -21,6 +21,8 @@
     const playbackSpeedStep = 0.25;
     const brightnessStep = 0.1; // Adjust the step as needed
     const hueStep = 10; // Adjust the step as needed
+    const saturationStep = 0.1; // Adjust the step as needed
+    const contrastStep = 0.1; // Adjust the step as needed
 
     // functions
     const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
@@ -35,6 +37,8 @@
     let equalizerPreset = null;
     let isBlackAndWhite = false;
     let hue = 0;
+    let saturation = 1.0;
+    let contrast = 1.0;
 
     // register keyboard shortcuts
     document.addEventListener('keydown', (e) => {
@@ -50,6 +54,18 @@
         } else if (e.ctrlKey && e.key === "ArrowLeft") {
             e.preventDefault(); // Prevent default browser behavior (scrolling)
             decreaseHue();
+        } else if (e.shiftKey && e.key === "ArrowUp") {
+            e.preventDefault(); // Prevent default browser behavior (scrolling)
+            increaseSaturation();
+        } else if (e.shiftKey && e.key === "ArrowDown") {
+            e.preventDefault(); // Prevent default browser behavior (scrolling)
+            decreaseSaturation();
+        } else if (e.shiftKey && e.key === "ArrowRight") {
+            e.preventDefault(); // Prevent default browser behavior (scrolling)
+            increaseContrast();
+        } else if (e.shiftKey && e.key === "ArrowLeft") {
+            e.preventDefault(); // Prevent default browser behavior (scrolling)
+            decreaseContrast();
         } else {
             loadVideo();
 
@@ -334,6 +350,34 @@
         if (video) {
             hue = (hue - hueStep) % 360;
             video.style.filter = `hue-rotate(${hue}deg)`;
+        }
+    }
+
+    function increaseSaturation() {
+        if (video) {
+            saturation = clamp(saturation + saturationStep, 0, 2);
+            video.style.filter = `saturate(${saturation})`;
+        }
+    }
+
+    function decreaseSaturation() {
+        if (video) {
+            saturation = clamp(saturation - saturationStep, 0, 2);
+            video.style.filter = `saturate(${saturation})`;
+        }
+    }
+
+    function increaseContrast() {
+        if (video) {
+            contrast = clamp(contrast + contrastStep, 0, 2);
+            video.style.filter = `contrast(${contrast})`;
+        }
+    }
+
+    function decreaseContrast() {
+        if (video) {
+            contrast = clamp(contrast - contrastStep, 0, 2);
+            video.style.filter = `contrast(${contrast})`;
         }
     }
 })();
