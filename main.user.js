@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Max, HBO Max and Discovery+ Keyboard Shortcuts
-// @namespace    https://github.com/chj85/HBOMax-and-Discovery-Plus-Keyboard-Shortcuts-and-Features
-// @version      0.23
+// @namespace    https://github.com/chj85/HBOMaxKeyboard
+// @version      0.27
 // @description  Adds keyboard shortcuts to (HBO)Max and Discovery Plus' video player.
 // @author       CHJ85
 // @author       Rafalb8
@@ -9,7 +9,6 @@
 // @match        https://play.hbomax.com/*
 // @match        *://www.discoveryplus.com/video/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hbomax.com
-// @license      MIT
 // @grant        none
 // ==/UserScript==
 
@@ -20,6 +19,7 @@
     const seek = 5;
     const volume = 0.1;
     const playbackSpeedStep = 0.25;
+    const brightnessStep = 0.1; // Adjust the step as needed
 
     // functions
     const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
@@ -29,82 +29,103 @@
     let originalAspectRatio = null;
     let aspectRatioOption = 0;
     let isMuted = false;
+    let brightness = 1.0;
+    let equalizerEnabled = false;
+    let equalizerPreset = null;
 
     // register keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-        loadVideo();
+        if (e.ctrlKey && e.key === "ArrowUp") {
+            e.preventDefault(); // Prevent default browser behavior (scrolling)
+            increaseBrightness();
+        } else if (e.ctrlKey && e.key === "ArrowDown") {
+            e.preventDefault(); // Prevent default browser behavior (scrolling)
+            decreaseBrightness();
+        } else {
+            loadVideo();
 
-        switch (e.key) {
-            // seek forward
-            case "l":
-                seekVideo(seek);
-                break;
+            switch (e.key) {
+                // seek forward
+                case "l":
+                    seekVideo(seek);
+                    break;
 
-            // seek backward
-            case "j":
-                seekVideo(-seek);
-                break;
+                // seek backward
+                case "j":
+                    seekVideo(-seek);
+                    break;
 
-            // volume up / down / mute
-            case "ArrowUp":
-                adjustVolume(volume);
-                break;
+                // volume up / down / mute
+                case "ArrowUp":
+                    adjustVolume(volume);
+                    break;
 
-            case "ArrowDown":
-                adjustVolume(-volume);
-                break;
+                case "ArrowDown":
+                    adjustVolume(-volume);
+                    break;
 
-            case "m":
-                toggleMute();
-                break;
+                case "m":
+                    toggleMute();
+                    break;
 
-            // Play/Pause
-            case "k":
-            case " ":
-                e.preventDefault(); // Prevents spacebar from scrolling the page
-                togglePlayPause();
-                break;
+                // Play/Pause
+                case "k":
+                case " ":
+                    e.preventDefault(); // Prevents spacebar from scrolling the page
+                    togglePlayPause();
+                    break;
 
-            // Fullscreen
-            case "f":
-                if (document.baseURI.includes("play.hbomax.com")) {
-                    // skip for play.hbomax.com
+                // Fullscreen
+                case "f":
+                    if (document.baseURI.includes("play.hbomax.com")) {
+                        // skip for play.hbomax.com
+                        return;
+                    }
+                    toggleFullscreen();
+                    break;
+
+                // Jump forward
+                case "ArrowRight":
+                    jumpForward();
+                    break;
+
+                // Jump back
+                case "ArrowLeft":
+                    jumpBack();
+                    break;
+
+                // Decrease / Increase playback speed
+                case "<":
+                case "-":
+                    adjustPlaybackSpeed(-1);
+                    break;
+
+                case ">":
+                case "+":
+                    adjustPlaybackSpeed(1);
+                    break;
+
+                // Aspect ratio options
+                case "a":
+                    toggleAspectRatio();
+                    break;
+
+                // Skip intro / end credits
+                case "s":
+                    skipIntroEndCredits();
+                    break;
+
+                // Toggle surround sound effect
+                case "o":
+                    toggleEqualizer();
+                    break;
+
+                default:
                     return;
-                }
-                toggleFullscreen();
-                break;
+            }
 
-            // Jump forward
-            case "ArrowRight":
-                jumpForward();
-                break;
-
-            // Jump back
-            case "ArrowLeft":
-                jumpBack();
-                break;
-
-            // Decrease / Increase playback speed
-            case "<":
-            case "-":
-                adjustPlaybackSpeed(-1);
-                break;
-
-            case ">":
-            case "+":
-                adjustPlaybackSpeed(1);
-                break;
-
-            // Aspect ratio options
-            case "a":
-                toggleAspectRatio();
-                break;
-
-            default:
-                return;
+            e.stopImmediatePropagation();
         }
-
-        e.stopImmediatePropagation();
     }, false);
 
     document.addEventListener('click', () => {
@@ -213,6 +234,75 @@
                 default:
                     break;
             }
+        }
+    }
+
+    function skipIntroEndCredits() {
+        if (video) {
+            // Skip the intro or end credits by jumping to a specific time
+            const introEndCreditTime = 30; // Adjust the time as needed
+            video.currentTime = introEndCreditTime;
+        }
+    }
+
+    function increaseBrightness() {
+        if (video) {
+            brightness = clamp(brightness + brightnessStep, 0, 1);
+            video.style.filter = `brightness(${brightness})`;
+        }
+    }
+
+    function decreaseBrightness() {
+        if (video) {
+            brightness = clamp(brightness - brightnessStep, 0, 1);
+            video.style.filter = `brightness(${brightness})`;
+        }
+    }
+
+    function toggleEqualizer() {
+        if (video) {
+            if (equalizerEnabled) {
+                // Reset the audio context to remove the surround sound effect
+                resetAudioContext();
+                equalizerEnabled = true;
+            } else {
+                // Apply the surround sound effect
+                applySurroundSoundEffect();
+                equalizerEnabled = true;
+            }
+        }
+    }
+
+    function applySurroundSoundEffect() {
+        const context = new AudioContext();
+        const source = context.createMediaElementSource(video);
+
+        const splitter = context.createChannelSplitter(2);
+        const merger = context.createChannelMerger(2);
+
+        const leftDelay = context.createDelay();
+        const rightDelay = context.createDelay();
+
+        leftDelay.delayTime.value = 0;
+        rightDelay.delayTime.value = 0.01;
+
+        source.connect(splitter);
+
+        splitter.connect(leftDelay, 0);
+        splitter.connect(rightDelay, 1);
+
+        leftDelay.connect(merger, 0, 0);
+        rightDelay.connect(merger, 0, 1);
+
+        merger.connect(context.destination);
+    }
+
+    function resetAudioContext() {
+        if (video) {
+            const audioContext = video.mozAudioContext || video.webkitAudioContext || new AudioContext();
+            const source = audioContext.createMediaElementSource(video);
+
+            source.disconnect();
         }
     }
 })();
