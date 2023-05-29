@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Max, HBO Max and Discovery+ Keyboard Shortcuts
 // @namespace    https://github.com/chj85/HBOMaxKeyboard
-// @version      0.25
+// @version      0.27
 // @description  Adds keyboard shortcuts to (HBO)Max and Discovery Plus' video player.
 // @author       CHJ85
 // @author       Rafalb8
@@ -32,6 +32,7 @@
     let brightness = 1.0;
     let equalizerEnabled = false;
     let equalizerPreset = null;
+    let isBlackAndWhite = false;
 
     // register keyboard shortcuts
     document.addEventListener('keydown', (e) => {
@@ -113,6 +114,11 @@
                 // Toggle surround sound effect
                 case "o":
                     toggleEqualizer();
+                    break;
+
+                // Toggle black and white effect
+                case "b":
+                    toggleBlackAndWhite();
                     break;
 
                 default:
@@ -251,7 +257,7 @@
             if (equalizerEnabled) {
                 // Reset the audio context to remove the surround sound effect
                 resetAudioContext();
-                equalizerEnabled = true;
+                equalizerEnabled = false;
             } else {
                 // Apply the surround sound effect
                 applySurroundSoundEffect();
@@ -290,6 +296,20 @@
             const source = audioContext.createMediaElementSource(video);
 
             source.disconnect();
+        }
+    }
+
+    function toggleBlackAndWhite() {
+        if (video) {
+            if (!isBlackAndWhite) {
+                video.style.filter = 'grayscale(100%)';
+                isBlackAndWhite = true;
+            } else if (isBlackAndWhite && video.style.filter !== 'invert(100%)') {
+                video.style.filter = 'invert(100%)';
+            } else {
+                video.style.filter = 'none';
+                isBlackAndWhite = false;
+            }
         }
     }
 })();
