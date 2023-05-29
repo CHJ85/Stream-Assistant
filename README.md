@@ -10,9 +10,11 @@ This userscript adds support for additional keyboard shortucts and features incl
  - F - Fullscreen
  - Plus / Minus or > / < - Change playback speed faster / slower
  - A - Change aspect ratio (default, zoom, stretch)
+ - B - Video filters: black & white, sepia and invert colors
  - Ctrl+Up / Ctrl+Down - Change brightness
  - Ctrl+Left / Ctrl+Right - Hue color control (arrow up to reset)
- - B - Video filters: black & white, sepia and invert colors
+ - Shift+Up / Shift+Down - Change saturation
+ - Shift+Left / Shift+Right - Change contrast
 # Beta features
  - O - Enable surround sound (unable to turn off without having to refresh the webpage)
 
