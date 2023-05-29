@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Max, HBO Max and Discovery+ Keyboard Shortcuts
 // @namespace    https://github.com/chj85/HBOMaxKeyboard
-// @version      0.27
+// @version      0.25
 // @description  Adds keyboard shortcuts to (HBO)Max and Discovery Plus' video player.
 // @author       CHJ85
 // @author       Rafalb8
@@ -108,11 +108,6 @@
                 // Aspect ratio options
                 case "a":
                     toggleAspectRatio();
-                    break;
-
-                // Skip intro / end credits
-                case "s":
-                    skipIntroEndCredits();
                     break;
 
                 // Toggle surround sound effect
@@ -234,14 +229,6 @@
                 default:
                     break;
             }
-        }
-    }
-
-    function skipIntroEndCredits() {
-        if (video) {
-            // Skip the intro or end credits by jumping to a specific time
-            const introEndCreditTime = 30; // Adjust the time as needed
-            video.currentTime = introEndCreditTime;
         }
     }
 
