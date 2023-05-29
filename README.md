@@ -1,6 +1,6 @@
-# Keyboard shortcuts and features for Max, HBO Max and Discovery+.
+# Keyboard shortcuts, ad blocking and additional features for Max, HBO Max and Discovery+.
 
-This userscript adds support for additional keyboard shortucts and features including headphone controls.
+This userscript adds support for additional keyboard shortucts and features including headphone controls. It also blocks ads on Max, HBO Max and Discovery+.
 
 # Keyboard shortcuts
  - J / L or Left / Right - seek 5s backward / forward
