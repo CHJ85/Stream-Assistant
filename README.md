@@ -1,6 +1,6 @@
 # Keyboard shortcuts, ad blocking and additional features for Max, HBO Max, Discovery+ and HGTV Go.
 
-This userscript adds support for additional keyboard shortucts and features including headphone controls. It also blocks (most) ads on Max, HBO Max, Discovery+, HGTV Go and Investigation Discovery's websites.
+This userscript adds support for additional keyboard shortucts and features including headphone controls. It also blocks (most) ads on Max, HBO Max, Discovery+, HGTV Go and Investigation Discovery's websites. Both live and on-demand content.
 
 # Keyboard shortcuts
  - J / L or Left / Right - seek 5s backward / forward
@@ -21,11 +21,8 @@ This userscript adds support for additional keyboard shortucts and features incl
 # Supported websites
 max.com, hbomax.com, discoveryplus.com, hgtv.com, investigationdiscovery.com
 # Ad blocking
-This script does not block in-house ads for HBO Max for instance.
-
+This script does not block in-house ads (for instance Max shows or upcoming episodes).
 # Installation
-
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
-
  - Install the [script](https://github.com/chj85/HBOMax-and-Discovery-Plus-Keyboard-Shortcuts-and-Features/raw/main/main.user.js)
