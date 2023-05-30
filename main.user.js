@@ -1,12 +1,14 @@
 // ==UserScript==
 // @name         Max, HBO Max and Discovery+ Keyboard Shortcuts, Features and Ad Blocking
 // @namespace    https://github.com/chj85/HBOMax-and-Discovery-Plus-Keyboard-Shortcuts-and-Features
-// @version      1.0
+// @version      1.4
 // @description  Adds keyboard shortcuts to (HBO)Max and Discovery Plus' video player with ad blocking and auto-skip functionality.
 // @author       CHJ85
 // @match        *://*.max.com/*
 // @match        https://play.hbomax.com/*
-// @match        *://www.discoveryplus.com/video/*
+// @match        https://www.discoveryplus.com/*
+// @match        https://watch.hgtv.com/*
+// @match        https://www.investigationdiscovery.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hbomax.com
 // @grant        none
 // ==/UserScript==
@@ -41,7 +43,14 @@
     let isAdBlocked = false;
 
     // register keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
+    document.addEventListener('keydown', handleKeyDown, false);
+
+    function handleKeyDown(e) {
+        const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
+        if (isInputField) {
+            return; // Skip executing keyboard shortcuts if the target element is an input field
+        }
+
         if (e.ctrlKey && e.key === "ArrowUp") {
             e.preventDefault(); // Prevent default browser behavior (scrolling)
             increaseBrightness();
@@ -145,17 +154,18 @@
                     toggleBlackAndWhite();
                     break;
 
+                // Skip intro
+                case "s":
+                    skipIntro();
+                    break;
+
                 default:
                     return;
             }
 
             e.stopImmediatePropagation();
         }
-    }, false);
-
-    document.addEventListener('click', () => {
-        loadVideo();
-    });
+    }
 
     function loadVideo() {
         if (video == null || video == undefined) {
@@ -382,6 +392,21 @@
         }
     }
 
+    function skipIntro() {
+      const skipButton = document.querySelector('button[aria-label="Skip intro"] span');
+      if (skipButton && skipButton.textContent === "Skip Intro") {
+        const buttonParent = skipButton.closest('button[aria-label="Skip intro"]');
+        buttonParent.click();
+      } else {
+        const skipButtonAlt = document.querySelector('button[role="Button"] span.skipStyle');
+        if (skipButtonAlt && skipButtonAlt.textContent === "Skip Intro") {
+          const buttonParentAlt = skipButtonAlt.closest('button[role="Button"]');
+          buttonParentAlt.click();
+        }
+      }
+    }
+
+
     function addAdBlockObserver() {
         const observer = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
@@ -419,4 +444,23 @@
             isAdBlocked = true;
         }
     }
+
+    // Watch for changes in the DOM to reattach event listeners and initialize variables for new videos
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                const videoAdded = Array.from(mutation.addedNodes).some(node => node.tagName === 'VIDEO');
+                if (videoAdded) {
+                    video = null;
+                    addAdBlockObserver();
+                }
+            }
+        });
+    });
+
+    observer.observe(document.documentElement, { childList: true, subtree: true });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadVideo();
+    });
 })();
