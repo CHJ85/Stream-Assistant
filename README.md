@@ -32,6 +32,7 @@ This userscript adds support for additional keyboard shortucts and features incl
 - Hulu
 - Investigation Discovery
 - Magellan TV
+- Max
 - Midnight Pulp
 - Ovationtv
 - Paramount+
