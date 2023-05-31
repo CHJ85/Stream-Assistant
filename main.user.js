@@ -1,13 +1,32 @@
 // ==UserScript==
-// @name         Max, HBO Max and Discovery+ Keyboard Shortcuts, Features and Ad Blocking
+// @name         Keyboard Shortcuts, Features and Ad Blocking for Max, Discovery+, Paramount+, Hulu and more.
 // @namespace    https://github.com/chj85/HBOMax-and-Discovery-Plus-Keyboard-Shortcuts-and-Features
-// @version      1.4
-// @description  Adds keyboard shortcuts to (HBO)Max and Discovery Plus' video player with ad blocking and auto-skip functionality.
+// @version      1.7
+// @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        *://*.max.com/*
 // @match        https://play.hbomax.com/*
 // @match        https://www.discoveryplus.com/*
+// @match        https://watch.frndlytv.com/*
+// @match        https://www.hulu.com/*
+// @match        https://app.pureflix.com/*
 // @match        https://watch.hgtv.com/*
+// @match        https://www.peacocktv.com/*
+// @match        https://www.magellantv.com/*
+// @match        https://watch.spectrum.net/*
+// @match        https://watch.sling.com/*
+// @match        https://watch.boomerang.com/*
+// @match        https://www.ovationtv.com/*
+// @match        https://www.fox.com/*
+// @match        https://www.hidive.com/*
+// @match        https://www.retrocrush.tv/*
+// @match        https://www.dovechannel.com/*
+// @match        https://www.midnightpulp.com/*
+// @match        https://www.contv.com/*
+// @match        https://therokuchannel.roku.com/*
+// @match        https://pluto.tv/*
+// @match        https://distro.tv/*
+// @match        https://www.paramountplus.com/*
 // @match        https://www.investigationdiscovery.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hbomax.com
 // @grant        none
@@ -440,10 +459,15 @@
     function blockAd(adContainer) {
         adContainer.style.display = "none";
         if (video && !isAdBlocked) {
-            video.play();
+            video.play().catch(err => console.log(err));
             isAdBlocked = true;
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+                // Resume video playback if in fullscreen mode
+                video.requestFullscreen().catch(err => console.log(err));
+            }
         }
     }
+
 
     // Watch for changes in the DOM to reattach event listeners and initialize variables for new videos
     const observer = new MutationObserver((mutations) => {
