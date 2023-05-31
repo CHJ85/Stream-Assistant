@@ -18,10 +18,33 @@ This userscript adds support for additional keyboard shortucts and features incl
  - Shift+Left / Shift+Right - Change contrast
 # Beta features
  - O - Enable surround sound (unable to turn off without having to refresh the webpage)
-# Supported websites
-max.com, hbomax.com, discoveryplus.com, hgtv.com, investigationdiscovery.com
+# Supported streaming services
+- Boomerang
+- ConTV
+- Discovery+
+- Distro TV
+- Dove Channel
+- Fox
+- Frndly TV
+- HGTV Go
+- HBO Max
+- HiDive
+- Hulu
+- Investigation Discovery
+- Magellan TV
+- Midnight Pulp
+- Ovationtv
+- Paramount+
+- Peacock TV
+- Pluto TV
+- PureFlix
+- Retro Crush
+- Sling
+- Spectrum
+- The Roku Channel
 # Ad blocking
 This script does not block in-house ads (for instance Max shows or upcoming episodes).
+Note that if an ad is not blocked, you can still fast forward using the arrow right key or L.
 # Installation
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
