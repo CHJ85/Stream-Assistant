@@ -14,6 +14,7 @@
 // @match        https://watch.hgtv.com/*
 // @match        https://www.peacocktv.com/*
 // @match        https://www.adultswim.com/*
+// @match        https://www.amcplus.com/*
 // @match        https://www.magellantv.com/*
 // @match        https://watch.spectrum.net/*
 // @match        https://watch.sling.com/*
@@ -24,6 +25,7 @@
 // @match        https://www.retrocrush.tv/*
 // @match        https://www.dovechannel.com/*
 // @match        https://www.midnightpulp.com/*
+// @match        https://www.klowdtv.com/*
 // @match        https://www.contv.com/*
 // @match        https://therokuchannel.roku.com/*
 // @match        https://pluto.tv/*
