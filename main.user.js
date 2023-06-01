@@ -1,10 +1,10 @@
 // ==UserScript==
-// @name         Stream Assistent − Keyboard Shortcuts, Features and Ad Blocking for Max, Discovery+, Paramount+, Hulu and more.
+// @name         Stream Assistent − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistent
-// @version      1.8
+// @version      1.9
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
-// @match        *://*.max.com/*
+// @match        https://*.max.com/*
 // @match        https://play.hbomax.com/*
 // @match        https://www.discoveryplus.com/*
 // @match        https://watch.frndlytv.com/*
@@ -37,7 +37,7 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
+(function() {
   'use strict';
 
   // config
@@ -70,8 +70,11 @@
 
   function handleKeyDown(e) {
     const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
-    if (isInputField) {
-      return; // Skip executing keyboard shortcuts if the target element is an input field
+    const isParamountPlus = window.location.hostname.includes('paramountplus.com');
+    const isSpacebar = e.key === ' ';
+
+    if (isInputField || (isParamountPlus && isSpacebar)) {
+      return; // Skip executing keyboard shortcuts on input fields or on paramountplus.com with spacebar
     }
 
     if (e.ctrlKey && e.key === 'ArrowUp') {
@@ -178,8 +181,23 @@
           break;
 
         // Skip intro
-        case 's':
+        case 'i':
           skipIntro();
+          break;
+
+        // Hue control
+        case 'h':
+          increaseHue();
+          break;
+
+        // Next episode button
+        case 'n':
+          clickNextEpisodeButton();
+          break;
+
+        // Skip 30 seconds
+        case 's':
+          skip30();
           break;
 
         default:
@@ -423,8 +441,32 @@
       if (skipButtonAlt && skipButtonAlt.textContent === 'Skip Intro') {
         const buttonParentAlt = skipButtonAlt.closest('button[role="Button"]');
         buttonParentAlt.click();
+      } else {
+        const skipButtonCustom = document.querySelector('.skip-button');
+        if (skipButtonCustom) {
+          skipButtonCustom.click();
+        } else {
+          const skipButtonByText = document.querySelector('button.skip-button__text');
+          if (skipButtonByText && skipButtonByText.textContent === 'Skip') {
+            const buttonParentByText = skipButtonByText.closest('.skip-button');
+            buttonParentByText.click();
+          }
+        }
       }
     }
+  }
+
+  function clickNextEpisodeButton() {
+    const nextEpisodeButton = Array.from(document.querySelectorAll('button'))
+      .find(button => button.textContent.trim().startsWith('Next Episode') || button.classList.contains('watch-now-btn'));
+
+    if (nextEpisodeButton) {
+      nextEpisodeButton.click();
+    }
+  }
+
+  function skip30() {
+    seekVideo(30);
   }
 
   // Fetch and apply the hosts file from GitHub
@@ -473,9 +515,4 @@
   document.addEventListener('DOMContentLoaded', () => {
     loadVideo();
   });
-
-    // Remove ads
-    setInterval(function() {
-        $('[class^="AdsContainer-"]').removeClass();
-    });
 })();
