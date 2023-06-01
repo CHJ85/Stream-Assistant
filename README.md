@@ -9,13 +9,14 @@ This userscript adds support for additional keyboard shortucts and features incl
  - K or Space bar - play / pause
  - F - Fullscreen
  - I - Skip intro
- - S - Skip forward 30 seconds. Useful when "skip intro" is not available or if you just want to fast forward a bit.
+ - S - Jump forward 30 seconds. Useful when "skip intro" is not available or if you just want to fast forward a bit.
  - N - Skip the end credit and jump straight to the next episode.
+ - 0-9 - Jump to specific percentages.
  - Plus / Minus or > / < - Change playback speed faster / slower
  - A - Change aspect ratio on non-widescreen content (choose between zoom or stretch)
  - B - Video filters: black & white, sepia and invert colors
  - Ctrl+Up / Ctrl+Down - Change brightness
- - Ctrl+Left / Ctrl+Right - Hue color control (arrow up to reset)
+ - H or Ctrl+Left / Ctrl+Right - Hue color control (Ctrl + arrow up to reset)
  - Shift+Up / Shift+Down - Change saturation
  - Shift+Left / Shift+Right - Change contrast
 # Beta features
