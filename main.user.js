@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistent − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistent
-// @version      1.9
+// @version      2.0
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -198,6 +198,38 @@
         // Skip 30 seconds
         case 's':
           skip30();
+          break;
+
+        // Jump to specific percentages
+        case '0':
+          jumpToPercentage(0);
+          break;
+        case '1':
+          jumpToPercentage(10);
+          break;
+        case '2':
+          jumpToPercentage(20);
+          break;
+        case '3':
+          jumpToPercentage(30);
+          break;
+        case '4':
+          jumpToPercentage(40);
+          break;
+        case '5':
+          jumpToPercentage(50);
+          break;
+        case '6':
+          jumpToPercentage(60);
+          break;
+        case '7':
+          jumpToPercentage(70);
+          break;
+        case '8':
+          jumpToPercentage(80);
+          break;
+        case '9':
+          jumpToPercentage(90);
           break;
 
         default:
@@ -453,6 +485,14 @@
           }
         }
       }
+    }
+  }
+
+  function jumpToPercentage(percentage) {
+    if (video) {
+      const duration = video.duration;
+      const currentTime = duration * (percentage / 100);
+      video.currentTime = currentTime;
     }
   }
 
