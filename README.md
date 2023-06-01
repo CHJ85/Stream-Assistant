@@ -52,8 +52,8 @@ This userscript adds support for additional keyboard shortucts and features incl
 - Spectrum
 - The Roku Channel
 # Ad blocking
-This script does not block in-house ads (for instance Max shows or upcoming episodes advertised on Discovery+).
-And note that if an ad is not blocked, this script allows you to fast forward or speeding up the video/stream.
+This script does not block in-house ads such as self-promotion.
+And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
 # Installation
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
