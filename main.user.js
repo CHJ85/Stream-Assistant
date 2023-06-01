@@ -4,7 +4,7 @@
 // @version      1.8
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
-// @match        https://*.max.com/*
+// @match        *://*.max.com/*
 // @match        https://play.hbomax.com/*
 // @match        https://www.discoveryplus.com/*
 // @match        https://watch.frndlytv.com/*
@@ -31,7 +31,6 @@
 // @match        https://www.paramountplus.com/*
 // @match        https://www.investigationdiscovery.com/*
 // @icon         https://i.imgur.com/pwiVt0N.png
-// @require      http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
 // @license      MIT
 // @grant        none
 // ==/UserScript==
