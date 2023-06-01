@@ -5,12 +5,12 @@ This userscript adds support for additional keyboard shortucts and features incl
 # Keyboard shortcuts
  - J / L or Left / Right - seek 5s backward / forward
  - Up / Down - volume control
- - M - Volume mute
+ - M - Mute / unmute
  - K or Space bar - play / pause
  - F - Fullscreen
- - S - Skip intro
+ - S - Skip intro where possible
  - Plus / Minus or > / < - Change playback speed faster / slower
- - A - Change aspect ratio on non-widescreen content (both zoom or stretch)
+ - A - Change aspect ratio on non-widescreen content (choose between zoom or stretch)
  - B - Video filters: black & white, sepia and invert colors
  - Ctrl+Up / Ctrl+Down - Change brightness
  - Ctrl+Left / Ctrl+Right - Hue color control (arrow up to reset)
@@ -21,6 +21,7 @@ This userscript adds support for additional keyboard shortucts and features incl
 # Supported streaming services
 - Adult Swim
 - Amazon Prime Video
+- AMC+
 - Boomerang
 - ConTV
 - Discovery+
@@ -34,6 +35,7 @@ This userscript adds support for additional keyboard shortucts and features incl
 - HiDive
 - Hulu
 - Investigation Discovery
+- Klowd TV
 - Magellan TV
 - Max
 - Midnight Pulp
@@ -47,8 +49,8 @@ This userscript adds support for additional keyboard shortucts and features incl
 - Spectrum
 - The Roku Channel
 # Ad blocking
-This script does not block in-house ads (for instance Max shows or upcoming episodes).
-Note that if an ad is not blocked, you can still fast forward using the arrow right key or L.
+This script does not block in-house ads (for instance Max shows or upcoming episodes advertised on Discovery+).
+And note that if an ad is not blocked, this script allows you to fast forward or speeding up the video/stream.
 # Installation
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
