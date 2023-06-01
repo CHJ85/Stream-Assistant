@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistent − Keyboard Shortcuts, Features and Ad Blocking for Max, Discovery+, Paramount+, Hulu and more.
 // @namespace    https://github.com/chj85/Stream-Assistent
-// @version      1.7
+// @version      1.8
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        *://*.max.com/*
@@ -9,9 +9,11 @@
 // @match        https://www.discoveryplus.com/*
 // @match        https://watch.frndlytv.com/*
 // @match        https://www.hulu.com/*
+// @match        https://www.amazon.com*
 // @match        https://app.pureflix.com/*
 // @match        https://watch.hgtv.com/*
 // @match        https://www.peacocktv.com/*
+// @match        https://www.adultswim.com/*
 // @match        https://www.magellantv.com/*
 // @match        https://watch.spectrum.net/*
 // @match        https://watch.sling.com/*
@@ -30,6 +32,7 @@
 // @match        https://www.investigationdiscovery.com/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=hbomax.com
 // @require      http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js
+// @license      MIT
 // @grant        none
 // ==/UserScript==
 
