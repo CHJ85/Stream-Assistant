@@ -8,7 +8,9 @@ This userscript adds support for additional keyboard shortucts and features incl
  - M - Mute / unmute
  - K or Space bar - play / pause
  - F - Fullscreen
- - S - Skip intro where possible
+ - I - Skip intro
+ - S - Skip forward 30 seconds. Useful when "skip intro" is not available or if you just want to fast forward a bit.
+ - N - Skip the end credit and jump straight to the next episode.
  - Plus / Minus or > / < - Change playback speed faster / slower
  - A - Change aspect ratio on non-widescreen content (choose between zoom or stretch)
  - B - Video filters: black & white, sepia and invert colors
