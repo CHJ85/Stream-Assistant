@@ -37,13 +37,13 @@ This userscript adds support for additional keyboard shortucts and features incl
 - Magellan TV
 - Max
 - Midnight Pulp
-- Ovationtv
+- Ovation TV
 - Paramount+
 - Peacock TV
 - Pluto TV
 - PureFlix
 - Retro Crush
-- Sling
+- Sling TV
 - Spectrum
 - The Roku Channel
 # Ad blocking
