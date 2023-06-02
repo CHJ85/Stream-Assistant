@@ -56,7 +56,8 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Spectrum
 - The Roku Channel
 - Tubi
-# Somewhat supported streaming services
+# Mostly supported streaming services
+- YouTube − Certain features do not work... Surround sound effect, some of the visual efects and the ability to change aspect ratio. 
 - Plex − Their ads can be a bit intrusive. And sometimes, the audio from these ads make their way in while the movie or TV show is playing. And sometimes, it crashes the video player. If this happens, just hit refresh. This only applies to their free TV shows and movies.
 # Installation
 To use the script:
