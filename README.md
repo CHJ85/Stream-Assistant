@@ -45,6 +45,7 @@ This userscript adds support for additional keyboard shortucts and features incl
 - Ovation TV
 - Paramount+
 - Peacock TV
+- Plex
 - Pluto TV
 - PureFlix
 - Retro Crush
