@@ -51,6 +51,7 @@ This userscript adds support for additional keyboard shortucts and features incl
 - Sling TV
 - Spectrum
 - The Roku Channel
+- Tubi
 # Ad blocking
 This script does not block in-house ads such as self-promotion.
 And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
