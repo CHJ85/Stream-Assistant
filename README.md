@@ -29,6 +29,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Amazon Prime Video
 - AMC+
 - Boomerang
+- Comedy Central
 - ConTV
 - Discovery+
 - Distro TV
