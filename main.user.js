@@ -18,6 +18,7 @@
 // @match        https://www.magellantv.com/*
 // @match        https://watch.spectrum.net/*
 // @match        https://watch.sling.com/*
+// @match        https://app.plex.tv/*
 // @match        https://watch.boomerang.com/*
 // @match        https://www.ovationtv.com/*
 // @match        https://www.fox.com/*
