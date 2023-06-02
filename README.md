@@ -21,6 +21,9 @@ This userscript adds support for additional keyboard shortucts and features incl
  - Shift+Left / Shift+Right - Change contrast
 # Beta features
  - O - Enable surround sound (unable to turn off without having to refresh the webpage)
+# Ad blocking
+This script does not block in-house ads such as self-promotion.
+And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
 # Supported streaming services
 - Adult Swim
 - Amazon Prime Video
@@ -45,7 +48,6 @@ This userscript adds support for additional keyboard shortucts and features incl
 - Ovation TV
 - Paramount+
 - Peacock TV
-- Plex
 - Pluto TV
 - PureFlix
 - Retro Crush
@@ -53,9 +55,8 @@ This userscript adds support for additional keyboard shortucts and features incl
 - Spectrum
 - The Roku Channel
 - Tubi
-# Ad blocking
-This script does not block in-house ads such as self-promotion.
-And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
+# Somewhat supported streaming services
+- Plex − Their ads can be a bit intrusive. And sometimes, the audio from these ads make their way in while the movie or TV show is playing. And sometimes, it crashes the video player. If this happens, just hit refresh. This only applies to their free TV shows and movies.
 # Installation
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
