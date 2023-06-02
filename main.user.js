@@ -11,6 +11,7 @@
 // @match        https://www.hulu.com/*
 // @match        https://www.amazon.com*
 // @match        https://app.pureflix.com/*
+// @match        https://www.youtube.com/*
 // @match        https://watch.hgtv.com/*
 // @match        https://www.peacocktv.com/*
 // @match        https://www.cc.com/*
@@ -72,11 +73,14 @@
   document.addEventListener('keydown', handleKeyDown, false);
 
   function handleKeyDown(e) {
-    const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
     const isParamountPlus = window.location.hostname.includes('paramountplus.com');
+    const isYoutube = window.location.hostname.includes('youtube.com');
     const isSpacebar = e.key === ' ';
+    const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
 
-    if (isInputField || (isParamountPlus && isSpacebar)) {
+    if ((isYoutube && (/[A-Za-z0-9 ]/.test(e.key) || isSpacebar)) ||
+        (isParamountPlus && isSpacebar) ||
+        isInputField) {
       return; // Skip executing keyboard shortcuts on input fields or on paramountplus.com with spacebar
     }
 
