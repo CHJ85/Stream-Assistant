@@ -13,6 +13,7 @@
 // @match        https://app.pureflix.com/*
 // @match        https://watch.hgtv.com/*
 // @match        https://www.peacocktv.com/*
+// @match        https://www.cc.com/*
 // @match        https://www.adultswim.com/*
 // @match        https://www.amcplus.com/*
 // @match        https://www.magellantv.com/*
@@ -557,4 +558,10 @@
   document.addEventListener('DOMContentLoaded', () => {
     loadVideo();
   });
+
+  // Remove annoying bullcrap
+  function removeAds() {
+    $('[class^="AdInfoBar-message-"]').remove();
+    $('[class^="AdsContainer-"]').remove();
+  } removeAds();
 })();
