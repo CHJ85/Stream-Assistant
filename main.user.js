@@ -21,6 +21,7 @@
 // @match        https://watch.boomerang.com/*
 // @match        https://www.ovationtv.com/*
 // @match        https://www.fox.com/*
+// @match        https://tubitv.com/*
 // @match        https://www.hidive.com/*
 // @match        https://www.retrocrush.tv/*
 // @match        https://www.dovechannel.com/*
