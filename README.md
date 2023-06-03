@@ -56,12 +56,13 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Spectrum
 - The Roku Channel
 - Tubi
-# Mostly supported streaming services
+# Somewhat supported streaming services (BETA status)
 - Plex − Their ads can be a bit intrusive. And sometimes, the audio from these ads make their way in while the movie or TV show is playing. And sometimes, it crashes the video player. If this happens, just hit refresh. This only applies to their free TV shows and movies.
-- YouTube − Certain features do not work... Surround sound effect, some of the visual efects and the ability to change aspect ratio. 
+- YouTube − Certain features do not work... Surround sound effect, most of the visual efects and the ability to change aspect ratio. 
+- - To compensate for this, I've made a standalone userscript for [changing aspect ratio on YouTube](https://github.com/CHJ85/YouTube-Aspect-Ratio-Switcher).
 # Installation
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
- - Install the [script](https://github.com/chj85/HBOMax-and-Discovery-Plus-Keyboard-Shortcuts-and-Features/raw/main/main.user.js)
+ - Install the [script](https://github.com/chj85/Stream-Assistent/raw/main/main.user.js)
 # Support
-Are you having technical issues or feature requests, feel free to open a new Issue.
+Are you having technical issues or feature requests, feel free to open up a new Issue.
