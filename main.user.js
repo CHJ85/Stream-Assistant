@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistent − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistent
-// @version      2.0
+// @version      2.1
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -78,7 +78,7 @@
     const isSpacebar = e.key === ' ';
     const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
 
-    if ((isYoutube && (/[A-Za-z0-9 ]/.test(e.key) || isSpacebar)) ||
+    if ((isYoutube && !(e.ctrlKey || e.shiftKey || (e.ctrlKey && e.shiftKey))) ||
         (isParamountPlus && isSpacebar) ||
         isInputField) {
       return; // Skip executing keyboard shortcuts on input fields or on paramountplus.com with spacebar
@@ -108,6 +108,18 @@
     } else if (e.shiftKey && e.key === 'ArrowLeft') {
       e.preventDefault(); // Prevent default browser behavior (scrolling)
       decreaseContrast();
+    } else if (e.ctrlKey && e.shiftKey && e.keyCode === 37) {
+      e.preventDefault(); // Prevent default browser behavior (scrolling)
+      toggleEqualizer();
+    } else if (e.ctrlKey && e.shiftKey && e.keyCode === 38) {
+      e.preventDefault(); // Prevent default browser behavior (scrolling)
+      toggleAspectRatio();
+    } else if (e.ctrlKey && e.shiftKey && e.keyCode === 40) {
+      e.preventDefault(); // Prevent default browser behavior (scrolling)
+      toggleBlackAndWhite();
+    } else if (e.ctrlKey && e.shiftKey && e.keyCode === 39) {
+      e.preventDefault(); // Prevent default browser behavior (scrolling)
+      skip30();
     } else {
       loadVideo();
 
