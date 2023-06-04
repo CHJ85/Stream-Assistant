@@ -1,6 +1,7 @@
 # Stream Assistent − Keyboard shortcuts, ad blocking and additional features for various streaming services.
 
 This userscript adds support for additional keyboard shortucts and features including headphone controls. It also blocks (most) ads, for streaming services such as (HBO)Max, Discovery+, Paramount+, Hulu, Pluto TV, The Roku Channel, HGTV Go, HiDive, FreeVee, RetroCrush and many others. See complete list of supported streaming services below.
+NOTE: YouTube support has now been removed from this project and replace by [YouTube Assistent](https://github.com/CHJ85/YouTube-Assistent).
 
 # Keyboard shortcuts
  - J / L or Left / Right - seek 5s backward / forward
@@ -58,8 +59,6 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Tubi
 # Somewhat supported streaming services (BETA status)
 - Plex − Their ads can be a bit intrusive. And sometimes, the audio from these ads make their way in while the movie or TV show is playing. And sometimes, it crashes the video player. If this happens, just hit refresh. This only applies to their free TV shows and movies.
-- YouTube − Certain features do not work... Surround sound effect, most of the visual efects and the ability to change aspect ratio. 
-- - To compensate for this, I've made a standalone userscript for [changing aspect ratio on YouTube](https://github.com/CHJ85/YouTube-Aspect-Ratio-Switcher).
 # Installation
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
