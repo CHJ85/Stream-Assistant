@@ -513,7 +513,7 @@
   }
 
   // Fetch and apply the hosts file from GitHub
-  fetch('https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts')
+  fetch('https://raw.githubusercontent.com/hagezi/dns-blocklists/main/hosts/ultimate.txt')
     .then((response) => response.text())
     .then((hostsFileContent) => {
       const blockedHosts = hostsFileContent
