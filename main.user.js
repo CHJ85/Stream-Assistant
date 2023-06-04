@@ -11,7 +11,6 @@
 // @match        https://www.hulu.com/*
 // @match        https://www.amazon.com*
 // @match        https://app.pureflix.com/*
-// @match        https://www.youtube.com/*
 // @match        https://watch.hgtv.com/*
 // @match        https://www.peacocktv.com/*
 // @match        https://www.cc.com/*
@@ -73,14 +72,11 @@
   document.addEventListener('keydown', handleKeyDown, false);
 
   function handleKeyDown(e) {
-    const isParamountPlus = window.location.hostname.includes('paramountplus.com');
-    const isYoutube = window.location.hostname.includes('youtube.com');
-    const isSpacebar = e.key === ' ';
     const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
+    const isParamountPlus = window.location.hostname.includes('paramountplus.com');
+    const isSpacebar = e.key === ' ';
 
-    if ((isYoutube && !(e.ctrlKey || e.shiftKey || (e.ctrlKey && e.shiftKey))) ||
-        (isParamountPlus && isSpacebar) ||
-        isInputField) {
+    if (isInputField || (isParamountPlus && isSpacebar)) {
       return; // Skip executing keyboard shortcuts on input fields or on paramountplus.com with spacebar
     }
 
@@ -108,18 +104,6 @@
     } else if (e.shiftKey && e.key === 'ArrowLeft') {
       e.preventDefault(); // Prevent default browser behavior (scrolling)
       decreaseContrast();
-    } else if (e.ctrlKey && e.shiftKey && e.keyCode === 37) {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      toggleEqualizer();
-    } else if (e.ctrlKey && e.shiftKey && e.keyCode === 38) {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      toggleAspectRatio();
-    } else if (e.ctrlKey && e.shiftKey && e.keyCode === 40) {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      toggleBlackAndWhite();
-    } else if (e.ctrlKey && e.shiftKey && e.keyCode === 39) {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      skip30();
     } else {
       loadVideo();
 
