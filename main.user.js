@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.1
+// @version      2.2
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -16,6 +16,7 @@
 // @match        https://www.cc.com/*
 // @match        https://www.adultswim.com/*
 // @match        https://www.amcplus.com/*
+// @match        https://*.crunchyroll.com/*
 // @match        https://www.magellantv.com/*
 // @match        https://watch.spectrum.net/*
 // @match        https://watch.sling.com/*
@@ -74,9 +75,10 @@
   function handleKeyDown(e) {
     const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
     const isParamountPlus = window.location.hostname.includes('paramountplus.com');
+    const isCrunchyroll = window.location.hostname.includes('crunchyroll.com');
     const isSpacebar = e.key === ' ';
 
-    if (isInputField || (isParamountPlus && isSpacebar)) {
+    if (isInputField || (isParamountPlus && isSpacebar) || (isCrunchyroll && isSpacebar)) {
       return; // Skip executing keyboard shortcuts on input fields or on paramountplus.com with spacebar
     }
 
@@ -245,8 +247,31 @@
 
   function loadVideo() {
     if (video == null || video == undefined) {
-      video = document.querySelector('video');
-      fastSeek = typeof video.fastSeek === 'function';
+      // Try to find the video player based on different APIs or elements
+
+      // Check for JW Player
+      if (typeof jwplayer !== 'undefined' && jwplayer.api) {
+        video = jwplayer.api.getFirstPlayer().getContainer();
+        fastSeek = typeof video.seek === 'function';
+      }
+
+      // Check for Flowplayer
+      if (!video && typeof flowplayer !== 'undefined' && flowplayer.api) {
+        video = flowplayer.api.getFirstPlayer().getParent();
+        fastSeek = typeof video.seek === 'function';
+      }
+
+      // Check for RmpPlayer
+      if (!video && typeof rmp !== 'undefined' && rmp.players.length > 0) {
+        video = rmp.players[0].media.parentNode;
+        fastSeek = typeof video.seek === 'function';
+      }
+
+      // If no specific player is detected, fallback to <video> element
+      if (!video) {
+        video = document.querySelector('video');
+        fastSeek = typeof video.fastSeek === 'function';
+      }
     }
   }
 
