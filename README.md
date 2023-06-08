@@ -32,6 +32,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Boomerang
 - Comedy Central
 - ConTV
+- Crunchyroll
 - Discovery+
 - Distro TV
 - Dove Channel
