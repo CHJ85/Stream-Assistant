@@ -1,7 +1,7 @@
-# Stream Assistent − Keyboard shortcuts, ad blocking and additional features for various streaming services.
+# Stream Assistant − Keyboard shortcuts, ad blocking and additional features for various streaming services.
 
 This userscript adds support for additional keyboard shortucts and features including headphone controls. It also blocks (most) ads, for streaming services such as (HBO)Max, Discovery+, Paramount+, Hulu, Pluto TV, The Roku Channel, HGTV Go, HiDive, FreeVee, RetroCrush and many others. See complete list of supported streaming services below.
-NOTE: YouTube support has now been removed from this project and replace by [YouTube Assistent](https://github.com/CHJ85/YouTube-Assistent).
+NOTE: YouTube support has now been removed from this project and replace by [YouTube Assistent](https://github.com/CHJ85/YouTube-Assistant).
 
 # Keyboard shortcuts
  - J / L or Left / Right - seek 5s backward / forward
@@ -62,6 +62,6 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 # Installation
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
- - Install the [script](https://github.com/chj85/Stream-Assistent/raw/main/main.user.js)
+ - Install the [script](https://github.com/chj85/Stream-Assistant/raw/main/main.user.js)
 # Support
 Are you having technical issues or feature requests, feel free to open up a new Issue.
