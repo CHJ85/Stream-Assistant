@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Stream Assistent − Keyboard Shortcuts, Features for Streaming Services
-// @namespace    https://github.com/chj85/Stream-Assistent
+// @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
+// @namespace    https://github.com/chj85/Stream-Assistant
 // @version      2.1
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
