@@ -44,6 +44,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - HiDive
 - Hulu
 - Investigation Discovery
+- Kick
 - Klowd TV
 - Magellan TV
 - Max
