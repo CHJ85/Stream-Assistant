@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.4
+// @version      2.5
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -279,6 +279,11 @@
         video = document.querySelector('video');
         fastSeek = typeof video.fastSeek === 'function';
       }
+    }
+
+    // Set focus on the video player element
+    if (video) {
+      video.focus();
     }
   }
 
