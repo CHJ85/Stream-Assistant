@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.3
+// @version      2.4
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -82,6 +82,11 @@
 
     if (isInputField || (isParamountPlus && isSpacebar) || (isCrunchyroll && isSpacebar)) {
       return; // Skip executing keyboard shortcuts on input fields or on paramountplus.com with spacebar
+    }
+
+    // Check if the video player is in focus
+    if (video && document.activeElement !== video) {
+      return; // Skip executing keyboard shortcuts if the video player is not in focus
     }
 
     if (e.ctrlKey && e.key === 'ArrowUp') {
