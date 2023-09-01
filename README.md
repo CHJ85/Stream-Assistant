@@ -35,6 +35,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Crunchyroll
 - Discovery+
 - Distro TV
+- DLive
 - Dove Channel
 - Fox
 - FreeVee
@@ -60,6 +61,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Spectrum
 - The Roku Channel
 - Tubi
+- Vaughn Live
 # Somewhat supported streaming services (BETA status)
 - Plex − Their ads can be a bit intrusive. And sometimes, the audio from these ads make their way in while the movie or TV show is playing. And sometimes, it crashes the video player. If this happens, just hit refresh. This only applies to their free TV shows and movies.
 # Installation
