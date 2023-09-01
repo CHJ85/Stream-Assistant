@@ -55,6 +55,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Pluto TV
 - PureFlix
 - Retro Crush
+- Rumble
 - Sling TV
 - Spectrum
 - The Roku Channel
