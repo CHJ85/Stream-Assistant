@@ -42,6 +42,7 @@
 // @match        https://www.paramountplus.com/*
 // @match        https://www.investigationdiscovery.com/*
 // @match        https://audiovisual.ec.europa.eu/*
+// @match        https://www.dazn.com/*
 // @icon         https://i.imgur.com/pwiVt0N.png
 // @license      MIT
 // @grant        none
