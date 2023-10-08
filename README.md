@@ -33,6 +33,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Comedy Central
 - ConTV
 - Crunchyroll
+- DAZN
 - Discovery+
 - Distro TV
 - DLive
