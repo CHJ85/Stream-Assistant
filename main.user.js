@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.6
+// @version      2.7
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -9,6 +9,7 @@
 // @match        https://www.discoveryplus.com/*
 // @match        https://watch.frndlytv.com/*
 // @match        https://www.hulu.com/*
+// @match        https://www.acallforanuprising.com/*
 // @match        https://www.amazon.com*
 // @match        https://app.pureflix.com/*
 // @match        https://watch.hgtv.com/*
@@ -43,6 +44,7 @@
 // @match        https://www.investigationdiscovery.com/*
 // @match        https://audiovisual.ec.europa.eu/*
 // @match        https://www.dazn.com/*
+// @match        https://multimedia.europarl.europa.eu/*
 // @icon         https://i.imgur.com/pwiVt0N.png
 // @license      MIT
 // @grant        none
