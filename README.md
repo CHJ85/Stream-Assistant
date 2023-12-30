@@ -12,7 +12,7 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - I - Skip intro
  - S - Jump forward 30 seconds. Useful when "skip intro" is not available or if you just want to fast forward a bit.
  - N - Skip the end credit and jump straight to the next episode.
- - 0-9 - Jump to specific percentages.
+ - 0-9 - Jump to specific percentage. 0 = Beginning, 1 = 10% and so on.
  - Plus / Minus or > / < - Change playback speed faster / slower
  - A - Change aspect ratio on non-widescreen content (choose between zoom or stretch)
  - B - Video filters: black & white, sepia and invert colors
