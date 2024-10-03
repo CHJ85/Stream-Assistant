@@ -1,13 +1,12 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.7
+// @version      2.8
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
 // @match        https://play.hbomax.com/*
 // @match        https://www.discoveryplus.com/*
-// @match        https://watch.frndlytv.com/*
 // @match        https://www.hulu.com/*
 // @match        https://www.acallforanuprising.com/*
 // @match        https://www.amazon.com*
@@ -61,6 +60,7 @@
   const hueStep = 10; // Adjust the step as needed
   const saturationStep = 0.1; // Adjust the step as needed
   const contrastStep = 0.1; // Adjust the step as needed
+  const holdThreshold = 200; // Duration in ms to distinguish between click and hold
 
   // functions
   const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
@@ -78,8 +78,23 @@
   let saturation = 1.0;
   let contrast = 1.0;
 
+  // Variables for the speed-up functionality
+  let originalPlaybackSpeed = 1.0;
+  let isMouseHeldDown = false;
+
+  // Variables for mouse timing
+  let mouseDownTime = 0;
+  let mouseHoldTimer = null;
+
+  // Variables for spacebar timing
+  let spacebarKeyDownTime = 0;
+  let spacebarSpeedUp = false;
+  let spacebarTimer = null;
+  let spacebarHeldDown = false;
+
   // register keyboard shortcuts
   document.addEventListener('keydown', handleKeyDown, false);
+  document.addEventListener('keyup', handleKeyUp, false);
 
   function handleKeyDown(e) {
     const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
@@ -94,6 +109,24 @@
     // Check if the video player is in focus
     if (video && document.activeElement !== video) {
       return; // Skip executing keyboard shortcuts if the video player is not in focus
+    }
+
+    // Handle the spacebar key for play/pause and speeding up the video
+    if (e.key === ' ') {
+      e.preventDefault(); // Prevent default behavior
+      spacebarKeyDownTime = Date.now();
+      spacebarHeldDown = true;
+      spacebarTimer = setTimeout(() => {
+        if (spacebarHeldDown) {
+          loadVideo();
+          if (video && video.playbackRate !== 2.0) {
+            originalPlaybackSpeed = video.playbackRate;
+            video.playbackRate = 2.0;
+            spacebarSpeedUp = true;
+          }
+        }
+      }, holdThreshold);
+      return; // Skip further processing
     }
 
     if (e.ctrlKey && e.key === 'ArrowUp') {
@@ -147,10 +180,9 @@
           toggleMute();
           break;
 
-        // Play/Pause
+        // Play/Pause with 'k' key only
         case 'k':
-        case ' ':
-          e.preventDefault(); // Prevents spacebar from scrolling the page
+          e.preventDefault();
           togglePlayPause();
           break;
 
@@ -259,6 +291,26 @@
     }
   }
 
+  function handleKeyUp(e) {
+    if (e.key === ' ') {
+      e.preventDefault();
+      const duration = Date.now() - spacebarKeyDownTime;
+      spacebarHeldDown = false;
+      clearTimeout(spacebarTimer);
+
+      if (spacebarSpeedUp) {
+        if (video) {
+          video.playbackRate = originalPlaybackSpeed;
+        }
+        spacebarSpeedUp = false;
+      } else if (duration < holdThreshold) {
+        // Treat as single press, toggle play/pause
+        loadVideo();
+        togglePlayPause();
+      }
+    }
+  }
+
   function loadVideo() {
     if (video == null || video == undefined) {
       // Try to find the video player based on different APIs or elements
@@ -286,6 +338,12 @@
         video = document.querySelector('video');
         fastSeek = typeof video.fastSeek === 'function';
       }
+
+      // Add mouse event listeners for the video
+      if (video) {
+        video.addEventListener('mousedown', handleMouseDown, false);
+        video.addEventListener('mouseup', handleMouseUp, false);
+      }
     }
 
     // Set focus on the video player element
@@ -293,6 +351,41 @@
       video.focus();
     }
   }
+
+  function handleMouseDown(e) {
+    if (e.button === 0) { // left mouse button
+      mouseDownTime = Date.now();
+      isMouseHeldDown = true;
+      mouseHoldTimer = setTimeout(() => {
+        if (isMouseHeldDown) {
+          loadVideo();
+          if (video && video.playbackRate !== 2.0) {
+            originalPlaybackSpeed = video.playbackRate;
+            video.playbackRate = 2.0;
+          }
+        }
+      }, holdThreshold);
+    }
+  }
+
+  function handleMouseUp(e) {
+    if (e.button === 0 && isMouseHeldDown) {
+      const duration = Date.now() - mouseDownTime;
+      isMouseHeldDown = false;
+      clearTimeout(mouseHoldTimer);
+
+      if (duration >= holdThreshold) {
+        // Held down long enough to speed up, reset playback speed
+        if (video) {
+          video.playbackRate = originalPlaybackSpeed;
+        }
+      }
+      // For clicks and double-clicks, we let the default behavior occur
+    }
+  }
+
+  // No longer need to add mouseup event listener to the document
+  // as we handle it directly on the video element
 
   function seekVideo(value) {
     if (video) {
