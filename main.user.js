@@ -23,7 +23,6 @@
 // @match        https://watch.spectrum.net/*
 // @match        https://watch.sling.com/*
 // @match        https://app.plex.tv/*
-// @match        https://watch.boomerang.com/*
 // @match        https://www.ovationtv.com/*
 // @match        https://www.fox.com/*
 // @match        https://vaughn.live/*
@@ -34,7 +33,7 @@
 // @match        https://www.midnightpulp.com/*
 // @match        https://www.klowdtv.com/*
 // @match        https://www.contv.com/*
-// @match        https://dlive.tv/*
+// @match        https://more.clownfishtv.com/*
 // @match        https://www.ruptly.tv/*
 // @match        https://therokuchannel.roku.com/*
 // @match        https://pluto.tv/*
