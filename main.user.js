@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.8.1
+// @version      2.8.2
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -32,7 +32,6 @@
 // @match        https://www.dovechannel.com/*
 // @match        https://www.midnightpulp.com/*
 // @match        https://www.klowdtv.com/*
-// @match        https://www.contv.com/*
 // @match        https://more.clownfishtv.com/*
 // @match        https://www.ruptly.tv/*
 // @match        https://therokuchannel.roku.com/*
