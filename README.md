@@ -32,7 +32,6 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - AMC+
 - Clownfish TV
 - Comedy Central
-- ConTV
 - Crunchyroll
 - DAZN
 - Discovery+
