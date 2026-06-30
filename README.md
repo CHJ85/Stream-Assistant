@@ -30,14 +30,13 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Adult Swim
 - Amazon Prime Video
 - AMC+
-- Boomerang
+- Clownfish TV
 - Comedy Central
 - ConTV
 - Crunchyroll
 - DAZN
 - Discovery+
 - Distro TV
-- DLive
 - Dove Channel
 - Fox
 - FreeVee
@@ -50,7 +49,6 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Kick
 - Klowd TV
 - Magellan TV
-- Max
 - Midnight Pulp
 - Ovation TV
 - Paramount+
