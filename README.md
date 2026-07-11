@@ -18,11 +18,11 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - A - Change aspect ratio on non-widescreen content (choose between zoom or stretch)
  - B - Video filters: black & white, sepia and invert colors
  - Ctrl+Up / Ctrl+Down - Change brightness
- - H or Ctrl+Left / Ctrl+Right - Hue color control (Ctrl + arrow up to reset)
+ - H or Ctrl+Left / Ctrl+Right - Hue color control
+ - R - Revert filters (brightness, contrast, hue, and saturation) back to normal
  - Shift+Up / Shift+Down - Change saturation
  - Shift+Left / Shift+Right - Change contrast
-# Beta features
- - O - Enable surround sound (unable to turn off without having to refresh the webpage)
+ - O - Toggle surround sound
 # Ad blocking
 This script does not block in-house ads such as self-promotion.
 And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
