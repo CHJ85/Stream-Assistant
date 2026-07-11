@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.8.2
+// @version      2.9.2
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -48,656 +48,441 @@
 // ==/UserScript==
 
 (function() {
-  'use strict';
+    'use strict';
 
-  // config
-  const seek = 5;
-  const volume = 0.1;
-  const playbackSpeedStep = 0.25;
-  const brightnessStep = 0.1; // Adjust the step as needed
-  const hueStep = 10; // Adjust the step as needed
-  const saturationStep = 0.1; // Adjust the step as needed
-  const contrastStep = 0.1; // Adjust the step as needed
-  const holdThreshold = 200; // Duration in ms to distinguish between click and hold
+    // --- Configuration ---
+    const config = {
+        seek: 5,
+        volume: 0.1,
+        playbackSpeedStep: 0.25,
+        brightnessStep: 0.1,
+        hueStep: 10,
+        saturationStep: 0.1,
+        contrastStep: 0.1,
+        holdThreshold: 200 // ms to distinguish between click and hold
+    };
 
-  // functions
-  const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
-  let video = null;
-  let fastSeek = false;
-  let playbackSpeed = 1.0;
-  let originalAspectRatio = null;
-  let aspectRatioOption = 0;
-  let isMuted = false;
-  let brightness = 1.0;
-  let equalizerEnabled = false;
-  let equalizerPreset = null;
-  let isBlackAndWhite = false;
-  let hue = 0;
-  let saturation = 1.0;
-  let contrast = 1.0;
+    // --- State Management ---
+    let video = null;
+    let fastSeek = false;
+    let aspectRatioOption = 0;
 
-  // Variables for the speed-up functionality
-  let originalPlaybackSpeed = 1.0;
-  let isMouseHeldDown = false;
+    // Video Filters State
+    const filters = {
+        brightness: 1.0,
+        hue: 0,
+        saturation: 1.0,
+        contrast: 1.0,
+        special: 'none'
+    };
 
-  // Variables for mouse timing
-  let mouseDownTime = 0;
-  let mouseHoldTimer = null;
+    // Playback & Timing State
+    let playbackSpeed = 1.0;
+    let originalPlaybackSpeed = 1.0;
+    let isMouseHeldDown = false;
+    let mouseDownTime = 0;
+    let mouseHoldTimer = null;
+    let spacebarKeyDownTime = 0;
+    let spacebarSpeedUp = false;
+    let spacebarTimer = null;
+    let spacebarHeldDown = false;
+    let enforceSpeedInterval = null; // Forces speed to stay at 2x if the site fights back
 
-  // Variables for spacebar timing
-  let spacebarKeyDownTime = 0;
-  let spacebarSpeedUp = false;
-  let spacebarTimer = null;
-  let spacebarHeldDown = false;
+    // Audio State
+    let audioContextData = null;
 
-  // register keyboard shortcuts
-  document.addEventListener('keydown', handleKeyDown, false);
-  document.addEventListener('keyup', handleKeyUp, false);
+    // --- Helper Functions ---
+    const clamp = (num, min, max) => Math.min(Math.max(num, min), max);
 
-  function handleKeyDown(e) {
-    const isInputField = ['input', 'textarea'].includes(e.target.tagName.toLowerCase());
-    const isParamountPlus = window.location.hostname.includes('paramountplus.com');
-    const isCrunchyroll = window.location.hostname.includes('crunchyroll.com');
-    const isSpacebar = e.key === ' ';
+    const applyFilters = () => {
+        if (!video) return;
+        const baseFilters = `brightness(${filters.brightness}) hue-rotate(${filters.hue}deg) saturate(${filters.saturation}) contrast(${filters.contrast})`;
+        video.style.filter = filters.special !== 'none' ? `${baseFilters} ${filters.special}` : baseFilters;
+    };
 
-    if (isInputField || (isParamountPlus && isSpacebar) || (isCrunchyroll && isSpacebar)) {
-      return; // Skip executing keyboard shortcuts on input fields or on paramountplus.com with spacebar
-    }
+    // --- Initialization & Event Listeners ---
+    // Using capture: true globally to intercept events before site scripts can stop them
+    document.addEventListener('keydown', handleKeyDown, true);
+    document.addEventListener('keyup', handleKeyUp, true);
+    document.addEventListener('mousedown', handleMouseDown, true);
+    document.addEventListener('mouseup', handleMouseUp, true);
 
-    // Check if the video player is in focus
-    if (video && document.activeElement !== video) {
-      return; // Skip executing keyboard shortcuts if the video player is not in focus
-    }
+    function handleKeyDown(e) {
+        const targetTagName = e.target.tagName ? e.target.tagName.toLowerCase() : '';
+        const isInputField = ['input', 'textarea'].includes(targetTagName) || e.target.isContentEditable;
 
-    // Handle the spacebar key for play/pause and speeding up the video
-    if (e.key === ' ') {
-      e.preventDefault(); // Prevent default behavior
-      spacebarKeyDownTime = Date.now();
-      spacebarHeldDown = true;
-      spacebarTimer = setTimeout(() => {
-        if (spacebarHeldDown) {
-          loadVideo();
-          if (video && video.playbackRate !== 2.0) {
-            originalPlaybackSpeed = video.playbackRate;
-            video.playbackRate = 2.0;
-            spacebarSpeedUp = true;
-          }
-        }
-      }, holdThreshold);
-      return; // Skip further processing
-    }
+        const isParamountPlus = window.location.hostname.includes('paramountplus.com');
+        const isCrunchyroll = window.location.hostname.includes('crunchyroll.com');
+        const isSpacebar = e.key === ' ';
 
-    if (e.ctrlKey && e.key === 'ArrowUp') {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      increaseBrightness();
-    } else if (e.ctrlKey && e.key === 'ArrowDown') {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      decreaseBrightness();
-    } else if (e.ctrlKey && e.key === 'ArrowRight') {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      increaseHue();
-    } else if (e.ctrlKey && e.key === 'ArrowLeft') {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      decreaseHue();
-    } else if (e.shiftKey && e.key === 'ArrowUp') {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      increaseSaturation();
-    } else if (e.shiftKey && e.key === 'ArrowDown') {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      decreaseSaturation();
-    } else if (e.shiftKey && e.key === 'ArrowRight') {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      increaseContrast();
-    } else if (e.shiftKey && e.key === 'ArrowLeft') {
-      e.preventDefault(); // Prevent default browser behavior (scrolling)
-      decreaseContrast();
-    } else {
-      loadVideo();
+        if (isInputField || (isParamountPlus && isSpacebar) || (isCrunchyroll && isSpacebar)) return;
 
-      switch (e.key) {
-        // seek forward
-        case 'l':
-          seekVideo(seek);
-          break;
+        if (isSpacebar) {
+            e.preventDefault();
+            e.stopImmediatePropagation(); // Hides spacebar from native player so it doesn't pause
 
-        // seek backward
-        case 'j':
-          seekVideo(-seek);
-          break;
+            if (!spacebarHeldDown) {
+                spacebarKeyDownTime = Date.now();
+                spacebarHeldDown = true;
+                spacebarSpeedUp = false;
 
-        // volume up / down / mute
-        case 'ArrowUp':
-          adjustVolume(volume);
-          break;
+                spacebarTimer = setTimeout(() => {
+                    if (spacebarHeldDown) {
+                        loadVideo();
+                        if (video) {
+                            originalPlaybackSpeed = video.playbackRate || 1.0;
+                            video.playbackRate = 2.0;
+                            spacebarSpeedUp = true;
 
-        case 'ArrowDown':
-          adjustVolume(-volume);
-          break;
-
-        case 'm':
-          toggleMute();
-          break;
-
-        // Play/Pause with 'k' key only
-        case 'k':
-          e.preventDefault();
-          togglePlayPause();
-          break;
-
-        // Fullscreen
-        case 'f':
-          if (document.baseURI.includes('play.hbomax.com')) {
-            // skip for play.hbomax.com
+                            // Enforce 2x speed in case the site forces it back
+                            clearInterval(enforceSpeedInterval);
+                            enforceSpeedInterval = setInterval(() => {
+                                if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
+                            }, 100);
+                        }
+                    }
+                }, config.holdThreshold);
+            }
             return;
-          }
-          toggleFullscreen();
-          break;
-
-        // Jump forward
-        case 'ArrowRight':
-          jumpForward();
-          break;
-
-        // Jump back
-        case 'ArrowLeft':
-          jumpBack();
-          break;
-
-        // Decrease / Increase playback speed
-        case '<':
-        case '-':
-          adjustPlaybackSpeed(-1);
-          break;
-
-        case '>':
-        case '+':
-          adjustPlaybackSpeed(1);
-          break;
-
-        // Aspect ratio options
-        case 'a':
-          toggleAspectRatio();
-          break;
-
-        // Toggle surround sound effect
-        case 'o':
-          toggleEqualizer();
-          break;
-
-        // Toggle black and white effect
-        case 'b':
-          toggleBlackAndWhite();
-          break;
-
-        // Skip intro
-        case 'i':
-          skipIntro();
-          break;
-
-        // Hue control
-        case 'h':
-          increaseHue();
-          break;
-
-        // Next episode button
-        case 'n':
-          clickNextEpisodeButton();
-          break;
-
-        // Skip 30 seconds
-        case 's':
-          skip30();
-          break;
-
-        // Jump to specific percentages
-        case '0':
-          jumpToPercentage(0);
-          break;
-        case '1':
-          jumpToPercentage(10);
-          break;
-        case '2':
-          jumpToPercentage(20);
-          break;
-        case '3':
-          jumpToPercentage(30);
-          break;
-        case '4':
-          jumpToPercentage(40);
-          break;
-        case '5':
-          jumpToPercentage(50);
-          break;
-        case '6':
-          jumpToPercentage(60);
-          break;
-        case '7':
-          jumpToPercentage(70);
-          break;
-        case '8':
-          jumpToPercentage(80);
-          break;
-        case '9':
-          jumpToPercentage(90);
-          break;
-
-        default:
-          return;
-      }
-
-      e.stopImmediatePropagation();
-    }
-  }
-
-  function handleKeyUp(e) {
-    if (e.key === ' ') {
-      e.preventDefault();
-      const duration = Date.now() - spacebarKeyDownTime;
-      spacebarHeldDown = false;
-      clearTimeout(spacebarTimer);
-
-      if (spacebarSpeedUp) {
-        if (video) {
-          video.playbackRate = originalPlaybackSpeed;
         }
-        spacebarSpeedUp = false;
-      } else if (duration < holdThreshold) {
-        // Treat as single press, toggle play/pause
+
+        // Modifiers for visual settings
+        if (e.ctrlKey || e.shiftKey) {
+            if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); adjustFilter('brightness', config.brightnessStep); }
+            else if (e.ctrlKey && e.key === 'ArrowDown') { e.preventDefault(); adjustFilter('brightness', -config.brightnessStep); }
+            else if (e.ctrlKey && e.key === 'ArrowRight') { e.preventDefault(); adjustFilter('hue', config.hueStep); }
+            else if (e.ctrlKey && e.key === 'ArrowLeft') { e.preventDefault(); adjustFilter('hue', -config.hueStep); }
+            else if (e.shiftKey && e.key === 'ArrowUp') { e.preventDefault(); adjustFilter('saturation', config.saturationStep); }
+            else if (e.shiftKey && e.key === 'ArrowDown') { e.preventDefault(); adjustFilter('saturation', -config.saturationStep); }
+            else if (e.shiftKey && e.key === 'ArrowRight') { e.preventDefault(); adjustFilter('contrast', config.contrastStep); }
+            else if (e.shiftKey && e.key === 'ArrowLeft') { e.preventDefault(); adjustFilter('contrast', -config.contrastStep); }
+            return;
+        }
+
         loadVideo();
-        togglePlayPause();
-      }
-    }
-  }
 
-  function loadVideo() {
-    if (video == null || video == undefined) {
-      // Try to find the video player based on different APIs or elements
-
-      // Check for JW Player
-      if (typeof jwplayer !== 'undefined' && jwplayer.api) {
-        video = jwplayer.api.getFirstPlayer().getContainer();
-        fastSeek = typeof video.seek === 'function';
-      }
-
-      // Check for Flowplayer
-      if (!video && typeof flowplayer !== 'undefined' && flowplayer.api) {
-        video = flowplayer.api.getFirstPlayer().getParent();
-        fastSeek = typeof video.seek === 'function';
-      }
-
-      // Check for RmpPlayer
-      if (!video && typeof rmp !== 'undefined' && rmp.players.length > 0) {
-        video = rmp.players[0].media.parentNode;
-        fastSeek = typeof video.seek === 'function';
-      }
-
-      // If no specific player is detected, fallback to <video> element
-      if (!video) {
-        video = document.querySelector('video');
-        fastSeek = typeof video.fastSeek === 'function';
-      }
-
-      // Add mouse event listeners for the video
-      if (video) {
-        video.addEventListener('mousedown', handleMouseDown, false);
-        video.addEventListener('mouseup', handleMouseUp, false);
-      }
+        switch (e.key) {
+            case 'l': seekVideo(config.seek); break;
+            case 'j': seekVideo(-config.seek); break;
+            case 'ArrowUp': adjustVolume(config.volume); break;
+            case 'ArrowDown': adjustVolume(-config.volume); break;
+            case 'm': toggleMute(); break;
+            case 'k': e.preventDefault(); e.stopImmediatePropagation(); togglePlayPause(); break;
+            case 'f': if (!document.baseURI.includes('play.hbomax.com')) toggleFullscreen(); break;
+            case 'ArrowRight': seekVideo(config.seek); break;
+            case 'ArrowLeft': seekVideo(-config.seek); break;
+            case '<': case '-': adjustPlaybackSpeed(-1); break;
+            case '>': case '+': adjustPlaybackSpeed(1); break;
+            case 'a': toggleAspectRatio(); break;
+            case 'o': toggleEqualizer(); break;
+            case 'b': toggleBlackAndWhite(); break;
+            case 'i': skipIntro(); break;
+            case 'h': adjustFilter('hue', config.hueStep); break;
+            case 'n': clickNextEpisodeButton(); break;
+            case 's': seekVideo(30); break;
+            case 'r': resetFilters(); break;
+            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+                jumpToPercentage(parseInt(e.key) * 10);
+                break;
+            default: return;
+        }
+        e.stopImmediatePropagation();
     }
 
-    // Set focus on the video player element
-    if (video) {
-      video.focus();
-    }
-  }
+    function handleKeyUp(e) {
+        if (e.key === ' ') {
+            e.preventDefault();
+            e.stopImmediatePropagation();
 
-  function handleMouseDown(e) {
-    if (e.button === 0) { // left mouse button
-      mouseDownTime = Date.now();
-      isMouseHeldDown = true;
-      mouseHoldTimer = setTimeout(() => {
+            const duration = Date.now() - spacebarKeyDownTime;
+            spacebarHeldDown = false;
+            clearTimeout(spacebarTimer);
+            clearInterval(enforceSpeedInterval);
+
+            if (spacebarSpeedUp) {
+                if (video) video.playbackRate = originalPlaybackSpeed;
+                spacebarSpeedUp = false;
+            } else if (duration < config.holdThreshold) {
+                loadVideo();
+                togglePlayPause();
+            }
+        }
+    }
+
+    // --- Mouse Global Listeners (Bypasses Overlays) ---
+    function handleMouseDown(e) {
+        if (e.button !== 0) return; // Left click only
+
+        // Ensure we don't trigger hold-to-speed when clicking buttons, links, or UI
+        const targetTag = e.target.tagName ? e.target.tagName.toLowerCase() : '';
+        if (['input', 'textarea', 'button', 'a', 'select'].includes(targetTag) || e.target.closest('button, a, .skip-button')) return;
+
+        mouseDownTime = Date.now();
+        isMouseHeldDown = true;
+
+        mouseHoldTimer = setTimeout(() => {
+            if (isMouseHeldDown) {
+                loadVideo();
+                if (video) {
+                    originalPlaybackSpeed = video.playbackRate || 1.0;
+                    video.playbackRate = 2.0;
+
+                    clearInterval(enforceSpeedInterval);
+                    enforceSpeedInterval = setInterval(() => {
+                        if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
+                    }, 100);
+                }
+            }
+        }, config.holdThreshold);
+    }
+
+    function handleMouseUp(e) {
+        if (e.button !== 0) return;
+
         if (isMouseHeldDown) {
-          loadVideo();
-          if (video && video.playbackRate !== 2.0) {
-            originalPlaybackSpeed = video.playbackRate;
-            video.playbackRate = 2.0;
-          }
+            const duration = Date.now() - mouseDownTime;
+            isMouseHeldDown = false;
+            clearTimeout(mouseHoldTimer);
+            clearInterval(enforceSpeedInterval);
+
+            if (duration >= config.holdThreshold && video) {
+                video.playbackRate = originalPlaybackSpeed;
+            }
         }
-      }, holdThreshold);
     }
-  }
 
-  function handleMouseUp(e) {
-    if (e.button === 0 && isMouseHeldDown) {
-      const duration = Date.now() - mouseDownTime;
-      isMouseHeldDown = false;
-      clearTimeout(mouseHoldTimer);
+    // --- Core Video Logic ---
+    function loadVideo() {
+        let newVideo = null;
+        if (typeof jwplayer !== 'undefined' && jwplayer.api) newVideo = jwplayer.api.getFirstPlayer().getContainer();
+        else if (typeof flowplayer !== 'undefined' && flowplayer.api) newVideo = flowplayer.api.getFirstPlayer().getParent();
+        else if (typeof rmp !== 'undefined' && rmp.players.length > 0) newVideo = rmp.players[0].media.parentNode;
+        else newVideo = document.querySelector('video');
 
-      if (duration >= holdThreshold) {
-        // Held down long enough to speed up, reset playback speed
-        if (video) {
-          video.playbackRate = originalPlaybackSpeed;
+        if (newVideo && newVideo !== video) {
+            video = newVideo;
+            fastSeek = typeof video.fastSeek === 'function';
+            applyFilters();
         }
-      }
-      // For clicks and double-clicks, we let the default behavior occur
     }
-  }
 
-  // No longer need to add mouseup event listener to the document
-  // as we handle it directly on the video element
-
-  function seekVideo(value) {
-    if (video) {
-      const pos = video.currentTime + value;
-      if (fastSeek) {
-        video.fastSeek(pos);
-      } else {
-        video.currentTime = pos;
-      }
+    function seekVideo(value) {
+        if (!video) return;
+        const pos = video.currentTime + value;
+        fastSeek ? video.fastSeek(pos) : video.currentTime = pos;
     }
-  }
 
-  function adjustVolume(value) {
-    if (video) {
-      if (value === 0) {
-        video.muted = !video.muted;
-        isMuted = video.muted;
-      } else {
-        video.volume = clamp(video.volume + value, 0, 1);
-        video.muted = false;
-        isMuted = false;
-      }
-    }
-  }
-
-  function toggleMute() {
-    if (video) {
-      if (isMuted) {
-        video.muted = false;
-        isMuted = false;
-      } else {
-        video.muted = true;
-        isMuted = true;
-      }
-    }
-  }
-
-  function togglePlayPause() {
-    if (video && !spacebarSpeedUp) {
-      if (video.paused) {
-        video.play();
-      } else {
-        video.pause();
-      }
-    }
-  }
-
-  function toggleFullscreen() {
-    if (video) {
-      if (!document.fullscreenElement) {
-        video.requestFullscreen({ navigationUI: 'show' }).catch((err) => console.log(err));
-      } else {
-        document.exitFullscreen();
-      }
-    }
-  }
-
-  function jumpForward() {
-    seekVideo(seek);
-  }
-
-  function jumpBack() {
-    seekVideo(-seek);
-  }
-
-  function adjustPlaybackSpeed(direction) {
-    if (video) {
-      playbackSpeed = clamp(playbackSpeed + direction * playbackSpeedStep, 0.25, 4);
-      video.playbackRate = playbackSpeed;
-    }
-  }
-
-  function toggleAspectRatio() {
-    if (video) {
-      switch (aspectRatioOption) {
-        case 0:
-          // Stretch 4:3 video to fit 16:9 screen
-          video.style.objectFit = 'fill';
-          aspectRatioOption = 1;
-          break;
-        case 1:
-          // Zoom 16:9 video to fit 4:3 screen
-          video.style.objectFit = 'contain';
-          video.style.objectPosition = 'center';
-          aspectRatioOption = 2;
-          break;
-        case 2:
-          // Zoom 4:3 video to fit 16:9 screen
-          video.style.objectFit = 'cover';
-          video.style.objectPosition = 'center';
-          aspectRatioOption = 0;
-          break;
-        default:
-          break;
-      }
-    }
-  }
-
-  function increaseBrightness() {
-    if (video) {
-      brightness = clamp(brightness + brightnessStep, 0, 1);
-      video.style.filter = `brightness(${brightness})`;
-    }
-  }
-
-  function decreaseBrightness() {
-    if (video) {
-      brightness = clamp(brightness - brightnessStep, 0, 1);
-      video.style.filter = `brightness(${brightness})`;
-    }
-  }
-
-  function toggleEqualizer() {
-    if (video) {
-      if (equalizerEnabled) {
-        // Reset the audio context to remove the surround sound effect
-        resetAudioContext();
-        equalizerEnabled = false;
-      } else {
-        // Apply the surround sound effect
-        applySurroundSoundEffect();
-        equalizerEnabled = true;
-      }
-    }
-  }
-
-  function applySurroundSoundEffect() {
-    const context = new AudioContext();
-    const source = context.createMediaElementSource(video);
-
-    const splitter = context.createChannelSplitter(2);
-    const merger = context.createChannelMerger(2);
-
-    const leftDelay = context.createDelay();
-    const rightDelay = context.createDelay();
-
-    leftDelay.delayTime.value = 0;
-    rightDelay.delayTime.value = 0.01;
-
-    source.connect(splitter);
-
-    splitter.connect(leftDelay, 0);
-    splitter.connect(rightDelay, 1);
-
-    leftDelay.connect(merger, 0, 0);
-    rightDelay.connect(merger, 0, 1);
-
-    merger.connect(context.destination);
-  }
-
-  function resetAudioContext() {
-    if (video) {
-      const audioContext = video.mozAudioContext || video.webkitAudioContext || new AudioContext();
-      const source = audioContext.createMediaElementSource(video);
-
-      source.disconnect();
-    }
-  }
-
-  function toggleBlackAndWhite() {
-    if (video) {
-      if (!isBlackAndWhite) {
-        video.style.filter = 'grayscale(100%)';
-        isBlackAndWhite = true;
-      } else if (video.style.filter === 'grayscale(100%)') {
-        video.style.filter = 'sepia(100%)';
-      } else if (video.style.filter === 'sepia(100%)') {
-        video.style.filter = 'invert(100%)';
-      } else {
-        video.style.filter = 'none';
-        isBlackAndWhite = false;
-      }
-    }
-  }
-
-  function increaseHue() {
-    if (video) {
-      hue = (hue + hueStep) % 360;
-      video.style.filter = `hue-rotate(${hue}deg)`;
-    }
-  }
-
-  function decreaseHue() {
-    if (video) {
-      hue = (hue - hueStep) % 360;
-      video.style.filter = `hue-rotate(${hue}deg)`;
-    }
-  }
-
-  function increaseSaturation() {
-    if (video) {
-      saturation = clamp(saturation + saturationStep, 0, 2);
-      video.style.filter = `saturate(${saturation})`;
-    }
-  }
-
-  function decreaseSaturation() {
-    if (video) {
-      saturation = clamp(saturation - saturationStep, 0, 2);
-      video.style.filter = `saturate(${saturation})`;
-    }
-  }
-
-  function increaseContrast() {
-    if (video) {
-      contrast = clamp(contrast + contrastStep, 0, 2);
-      video.style.filter = `contrast(${contrast})`;
-    }
-  }
-
-  function decreaseContrast() {
-    if (video) {
-      contrast = clamp(contrast - contrastStep, 0, 2);
-      video.style.filter = `contrast(${contrast})`;
-    }
-  }
-
-  function skipIntro() {
-    const skipButton = document.querySelector('button[aria-label="Skip intro"] span');
-    if (skipButton && skipButton.textContent === 'Skip Intro') {
-      const buttonParent = skipButton.closest('button[aria-label="Skip intro"]');
-      buttonParent.click();
-    } else {
-      const skipButtonAlt = document.querySelector('button[role="Button"] span.skipStyle');
-      if (skipButtonAlt && skipButtonAlt.textContent === 'Skip Intro') {
-        const buttonParentAlt = skipButtonAlt.closest('button[role="Button"]');
-        buttonParentAlt.click();
-      } else {
-        const skipButtonCustom = document.querySelector('.skip-button');
-        if (skipButtonCustom) {
-          skipButtonCustom.click();
+    function adjustVolume(value) {
+        if (!video) return;
+        if (value === 0) {
+            video.muted = !video.muted;
         } else {
-          const skipButtonByText = document.querySelector('button.skip-button__text');
-          if (skipButtonByText && skipButtonByText.textContent === 'Skip') {
-            const buttonParentByText = skipButtonByText.closest('.skip-button');
-            buttonParentByText.click();
-          }
+            video.volume = clamp(video.volume + value, 0, 1);
+            video.muted = false;
         }
-      }
     }
-  }
 
-  function jumpToPercentage(percentage) {
-    if (video) {
-      const duration = video.duration;
-      const currentTime = duration * (percentage / 100);
-      video.currentTime = currentTime;
+    function toggleMute() {
+        if (video) video.muted = !video.muted;
     }
-  }
 
-  function clickNextEpisodeButton() {
-    const nextEpisodeButton = Array.from(document.querySelectorAll('button'))
-      .find(button => button.textContent.trim().startsWith('Next Episode') || button.classList.contains('watch-now-btn'));
-
-    if (nextEpisodeButton) {
-      nextEpisodeButton.click();
+    function togglePlayPause() {
+        if (video && !spacebarSpeedUp) {
+            video.paused ? video.play() : video.pause();
+        }
     }
-  }
 
-  function skip30() {
-    seekVideo(30);
-  }
+    function toggleFullscreen() {
+        if (!video) return;
+        if (!document.fullscreenElement) {
+            video.requestFullscreen({ navigationUI: 'show' }).catch(err => console.log(err));
+        } else {
+            document.exitFullscreen();
+        }
+    }
 
-  // Fetch and apply the hosts file from GitHub
-  fetch('https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts')
-    .then((response) => response.text())
-    .then((hostsFileContent) => {
-      const blockedHosts = hostsFileContent
-        .split('\n')
-        .filter((line) => line.startsWith('0.0.0.0'))
-        .map((line) => line.split(' ')[1]);
+    function adjustPlaybackSpeed(direction) {
+        if (video) {
+            playbackSpeed = clamp(playbackSpeed + direction * config.playbackSpeedStep, 0.25, 4);
+            video.playbackRate = playbackSpeed;
+        }
+    }
 
-      const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-            const videoElements = Array.from(mutation.addedNodes).filter((node) => node.tagName === 'VIDEO');
-            videoElements.forEach((element) => {
-              if (element.src && blockedHosts.some((host) => element.src.includes(host))) {
-                element.pause();
-                element.remove();
-              }
+    function toggleAspectRatio() {
+        if (!video) return;
+        const options = [
+            { fit: 'fill', pos: 'center' },
+ { fit: 'contain', pos: 'center' },
+ { fit: 'cover', pos: 'center' }
+        ];
+        video.style.objectFit = options[aspectRatioOption].fit;
+        video.style.objectPosition = options[aspectRatioOption].pos;
+        aspectRatioOption = (aspectRatioOption + 1) % options.length;
+    }
+
+    function adjustFilter(type, amount) {
+        if (type === 'hue') {
+            filters.hue = (filters.hue + amount) % 360;
+        } else {
+            const max = type === 'brightness' ? 3 : 2;
+            filters[type] = clamp(filters[type] + amount, 0, max);
+        }
+        applyFilters();
+    }
+
+    function toggleBlackAndWhite() {
+        if (filters.special === 'none') filters.special = 'grayscale(100%)';
+        else if (filters.special === 'grayscale(100%)') filters.special = 'sepia(100%)';
+        else if (filters.special === 'sepia(100%)') filters.special = 'invert(100%)';
+        else filters.special = 'none';
+        applyFilters();
+    }
+
+    function resetFilters() {
+        filters.brightness = 1.0;
+        filters.hue = 0;
+        filters.saturation = 1.0;
+        filters.contrast = 1.0;
+        filters.special = 'none';
+        applyFilters();
+    }
+
+    function toggleEqualizer() {
+        if (!video) return;
+
+        if (audioContextData && audioContextData.active) {
+            audioContextData.source.disconnect();
+            audioContextData.source.connect(audioContextData.context.destination);
+            audioContextData.active = false;
+        } else {
+            if (!audioContextData) {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const source = context.createMediaElementSource(video);
+
+                const splitter = context.createChannelSplitter(2);
+                const merger = context.createChannelMerger(2);
+                const leftDelay = context.createDelay();
+                const rightDelay = context.createDelay();
+
+                leftDelay.delayTime.value = 0;
+                rightDelay.delayTime.value = 0.01;
+
+                splitter.connect(leftDelay, 0);
+                splitter.connect(rightDelay, 1);
+                leftDelay.connect(merger, 0, 0);
+                rightDelay.connect(merger, 0, 1);
+
+                audioContextData = { context, source, splitter, merger, active: false };
+            }
+
+            audioContextData.source.disconnect();
+            audioContextData.source.connect(audioContextData.splitter);
+            audioContextData.merger.connect(audioContextData.context.destination);
+            audioContextData.active = true;
+        }
+    }
+
+    function skipIntro() {
+        const selectors = [
+            'button[aria-label="Skip intro"]',
+ 'button[role="Button"]',
+ '.skip-button',
+ 'button.skip-button__text',
+ '.atvwebplayersdk-skipelement-button'
+        ];
+
+        for (const selector of selectors) {
+            const btns = document.querySelectorAll(selector);
+            for (const btn of btns) {
+                if (btn && (btn.textContent.toLowerCase().includes('skip') || btn.classList.contains('skip-button'))) {
+                    btn.click();
+                    return;
+                }
+            }
+        }
+    }
+
+    function jumpToPercentage(percentage) {
+        if (video && video.duration) {
+            video.currentTime = video.duration * (percentage / 100);
+        }
+    }
+
+    function clickNextEpisodeButton() {
+        const btns = document.querySelectorAll('button, .watch-now-btn, .next-episode');
+        for (const btn of btns) {
+            if (btn.textContent.trim().toLowerCase().startsWith('next episode') || btn.classList.contains('watch-now-btn')) {
+                btn.click();
+                return;
+            }
+        }
+    }
+
+    function removeAds() {
+        const adElements = document.querySelectorAll('[class^="AdInfoBar-message-"], [class^="AdsContainer-"], .abvsVideo');
+        adElements.forEach(el => el.remove());
+    }
+
+    function initHostBlocker() {
+        const CACHE_KEY = 'StreamAssistant_HostsCache';
+        const CACHE_TIME = 24 * 60 * 60 * 1000;
+
+        const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+
+        if (cachedData && (Date.now() - cachedData.timestamp < CACHE_TIME)) {
+            observeForAds(cachedData.hosts);
+        } else {
+            fetch('https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts')
+            .then(res => res.text())
+            .then(text => {
+                const blockedHosts = text.split('\n')
+                .filter(line => line.startsWith('0.0.0.0'))
+                .map(line => line.split(' ')[1]);
+
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    timestamp: Date.now(),
+                                                               hosts: blockedHosts
+                }));
+                observeForAds(blockedHosts);
+            })
+            .catch(err => console.error('Failed to fetch hosts:', err));
+        }
+    }
+
+    function observeForAds(blockedHosts) {
+        const observer = new MutationObserver(mutations => {
+            let shouldRemoveAds = false;
+
+            mutations.forEach(mutation => {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    mutation.addedNodes.forEach(node => {
+                        if (node.tagName === 'VIDEO') {
+                            video = null;
+                            if (node.src && blockedHosts.some(host => node.src.includes(host))) {
+                                node.pause();
+                                node.remove();
+                            }
+                        }
+                        if (node.nodeType === 1 && (
+                            (node.className && typeof node.className === 'string' &&
+                            (node.className.includes('AdInfoBar') || node.className.includes('AdsContainer') || node.className.includes('abvsVideo')))
+                        )) {
+                            shouldRemoveAds = true;
+                        }
+                    });
+                }
             });
-          }
+
+            if (shouldRemoveAds) removeAds();
         });
-      });
 
-      observer.observe(document.documentElement, { childList: true, subtree: true });
-    })
-    .catch((error) => {
-      console.error('Failed to fetch the hosts file:', error);
+            observer.observe(document.documentElement, { childList: true, subtree: true });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        loadVideo();
+        removeAds();
+        initHostBlocker();
     });
 
-  // Watch for changes in the DOM to reattach event listeners and initialize variables for new videos
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-        const videoAdded = Array.from(mutation.addedNodes).some((node) => node.tagName === 'VIDEO');
-        if (videoAdded) {
-          video = null;
-        }
-      }
-    });
-  });
-
-  observer.observe(document.documentElement, { childList: true, subtree: true });
-
-  document.addEventListener('DOMContentLoaded', () => {
-    loadVideo();
-  });
-
-  // Remove annoying bullcrap
-  function removeAds() {
-    $('[class^="AdInfoBar-message-"]').remove();
-    $('[class^="AdsContainer-"]').remove();
-    $('.abvsVideo').remove();
-  } removeAds();
 })();
