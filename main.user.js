@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.9.4
+// @version      2.9.5
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -74,7 +74,8 @@
         hue: 0,
         saturation: 1.0,
         contrast: 1.0,
-        special: 'none'
+        special: 'none',
+        profile: null // Stores active shader profile
     };
 
     // Playback & Timing State
@@ -97,8 +98,12 @@
 
     const applyFilters = () => {
         if (!video) return;
-        const baseFilters = `brightness(${filters.brightness}) hue-rotate(${filters.hue}deg) saturate(${filters.saturation}) contrast(${filters.contrast})`;
-        video.style.filter = filters.special !== 'none' ? `${baseFilters} ${filters.special}` : baseFilters;
+        if (filters.profile) {
+            video.style.filter = filters.profile;
+        } else {
+            const baseFilters = `brightness(${filters.brightness}) hue-rotate(${filters.hue}deg) saturate(${filters.saturation}) contrast(${filters.contrast})`;
+            video.style.filter = filters.special !== 'none' ? `${baseFilters} ${filters.special}` : baseFilters;
+        }
     };
 
     // --- Initialization & Event Listeners ---
@@ -144,9 +149,13 @@
             return;
         }
 
-        // Modifiers for visual settings
+        // Modifiers for visual settings & Profiles
         if (e.ctrlKey || e.shiftKey) {
-            if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); adjustFilter('brightness', config.brightnessStep); }
+            if (e.ctrlKey && e.key >= '0' && e.key <= '9') {
+                e.preventDefault();
+                applyProfile(parseInt(e.key));
+            }
+            else if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); adjustFilter('brightness', config.brightnessStep); }
             else if (e.ctrlKey && e.key === 'ArrowDown') { e.preventDefault(); adjustFilter('brightness', -config.brightnessStep); }
             else if (e.ctrlKey && e.key === 'ArrowRight') { e.preventDefault(); adjustFilter('hue', config.hueStep); }
             else if (e.ctrlKey && e.key === 'ArrowLeft') { e.preventDefault(); adjustFilter('hue', -config.hueStep); }
@@ -320,6 +329,7 @@
     }
 
     function adjustFilter(type, amount) {
+        filters.profile = null; // Clear active profile when making manual adjustments
         if (type === 'hue') {
             filters.hue = (filters.hue + amount) % 360;
         } else {
@@ -329,7 +339,30 @@
         applyFilters();
     }
 
+    function applyProfile(index) {
+        const profiles = [
+            null, // 0: Reset handled separately
+            'brightness(1.05) contrast(1.1) saturate(0.9) blur(0.3px)', // 1: Retro CRT Soften
+            'brightness(1.0) contrast(1.15) saturate(1.2) hue-rotate(0deg)', // 2: Vibrant Punch
+            'brightness(0.9) contrast(1.2) saturate(0.85) invert(5%)', // 3: Midnight Dark Room
+            'brightness(1.0) contrast(1.05) saturate(0.9) sepia(25%)', // 4: Warm Vintage Film
+            'brightness(1.0) contrast(1.25) saturate(0%) grayscale(100%)', // 5: Monochrome Noir
+            'brightness(1.0) contrast(1.15) saturate(1.1) hue-rotate(180deg) invert(100%)', // 6: Cool Sci-Fi / Cyber
+            'brightness(1.05) contrast(1.1) saturate(0.7) sepia(10%)', // 7: Faded Archive Correction
+            'brightness(0.95) contrast(1.3) saturate(1.05)', // 8: Cinematic Crush
+            'brightness(1.15) contrast(1.05) saturate(1.05)' // 9: Crisp High-Key
+        ];
+
+        if (index === 0) {
+            resetFilters();
+        } else {
+            filters.profile = profiles[index];
+            applyFilters();
+        }
+    }
+
     function toggleBlackAndWhite() {
+        filters.profile = null; // Clear active profile when manually toggling B&W
         if (filters.special === 'none') filters.special = 'grayscale(100%)';
         else if (filters.special === 'grayscale(100%)') filters.special = 'sepia(100%)';
         else if (filters.special === 'sepia(100%)') filters.special = 'invert(100%)';
@@ -343,6 +376,7 @@
         filters.saturation = 1.0;
         filters.contrast = 1.0;
         filters.special = 'none';
+        filters.profile = null;
         applyFilters();
     }
 
