@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.9.5
+// @version      2.9.6
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -151,11 +151,17 @@
 
         // Modifiers for visual settings & Profiles
         if (e.ctrlKey || e.shiftKey) {
-            if (e.ctrlKey && e.key >= '0' && e.key <= '9') {
+            // Read physical code to bypass shift-character mapping on international layouts
+            const digitMatch = e.code && e.code.match(/^(?:Digit|Numpad)(\d)$/);
+            if (digitMatch) {
                 e.preventDefault();
-                applyProfile(parseInt(e.key));
+                const digit = parseInt(digitMatch[1]);
+                // Send 0-9 for Ctrl, and 10-19 for Shift
+                applyProfile(e.ctrlKey ? digit : digit + 10);
+                return;
             }
-            else if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); adjustFilter('brightness', config.brightnessStep); }
+
+            if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); adjustFilter('brightness', config.brightnessStep); }
             else if (e.ctrlKey && e.key === 'ArrowDown') { e.preventDefault(); adjustFilter('brightness', -config.brightnessStep); }
             else if (e.ctrlKey && e.key === 'ArrowRight') { e.preventDefault(); adjustFilter('hue', config.hueStep); }
             else if (e.ctrlKey && e.key === 'ArrowLeft') { e.preventDefault(); adjustFilter('hue', -config.hueStep); }
@@ -320,8 +326,8 @@
         if (!video) return;
         const options = [
             { fit: 'fill', pos: 'center' },
-            { fit: 'contain', pos: 'center' },
-            { fit: 'cover', pos: 'center' }
+ { fit: 'contain', pos: 'center' },
+ { fit: 'cover', pos: 'center' }
         ];
         video.style.objectFit = options[aspectRatioOption].fit;
         video.style.objectPosition = options[aspectRatioOption].pos;
@@ -341,19 +347,29 @@
 
     function applyProfile(index) {
         const profiles = [
-            null, // 0: Reset handled separately
-            'brightness(1.05) contrast(1.1) saturate(0.9) blur(0.3px)', // 1: Retro CRT Soften
-            'brightness(1.0) contrast(1.15) saturate(1.2) hue-rotate(0deg)', // 2: Vibrant Punch
-            'brightness(0.9) contrast(1.2) saturate(0.85) invert(5%)', // 3: Midnight Dark Room
-            'brightness(1.0) contrast(1.05) saturate(0.9) sepia(25%)', // 4: Warm Vintage Film
-            'brightness(1.0) contrast(1.25) saturate(0%) grayscale(100%)', // 5: Monochrome Noir
-            'brightness(1.0) contrast(1.15) saturate(1.1) hue-rotate(180deg) invert(100%)', // 6: Cool Sci-Fi / Cyber
-            'brightness(1.05) contrast(1.1) saturate(0.7) sepia(10%)', // 7: Faded Archive Correction
-            'brightness(0.95) contrast(1.3) saturate(1.05)', // 8: Cinematic Crush
-            'brightness(1.15) contrast(1.05) saturate(1.05)' // 9: Crisp High-Key
+            null, // 0: Reset (Ctrl+0)
+'brightness(1.05) contrast(1.1) saturate(0.9) blur(0.3px)', // 1: Retro CRT Soften
+ 'brightness(1.0) contrast(1.15) saturate(1.2) hue-rotate(0deg)', // 2: Vibrant Punch
+ 'brightness(0.9) contrast(1.2) saturate(0.85) invert(5%)', // 3: Midnight Dark Room
+ 'brightness(1.0) contrast(1.05) saturate(0.9) sepia(25%)', // 4: Warm Vintage Film
+ 'brightness(1.0) contrast(1.25) saturate(0%) grayscale(100%)', // 5: Monochrome Noir
+ 'brightness(1.0) contrast(1.15) saturate(1.1) hue-rotate(180deg) invert(100%)', // 6: Cool Sci-Fi / Cyber
+ 'brightness(1.05) contrast(1.1) saturate(0.7) sepia(10%)', // 7: Faded Archive Correction
+ 'brightness(0.95) contrast(1.3) saturate(1.05)', // 8: Cinematic Crush
+ 'brightness(1.15) contrast(1.05) saturate(1.05)', // 9: Crisp High-Key
+ null, // 10: Reset (Shift+0)
+'brightness(1.0) contrast(1.15) saturate(1.1) sepia(15%) hue-rotate(180deg)', // 11: Teal & Orange Blockbuster
+ 'brightness(0.95) contrast(1.25) saturate(1.4) hue-rotate(270deg)', // 12: Deep Cyberpunk Neon
+ 'brightness(1.0) contrast(1.1) saturate(0.8) sepia(40%)', // 13: Aged 16mm Horror Grain/Warmth
+ 'brightness(0.85) contrast(1.5) saturate(0.9)', // 14: High-Contrast Silhouette / Edge Out
+ 'brightness(0.95) contrast(1.05) saturate(0.5) hue-rotate(190deg)', // 15: Muted Atmospheric Depths
+ 'brightness(1.1) contrast(1.2) saturate(1.5) invert(30%) hue-rotate(90deg)', // 16: Solarized Retro Psychedelia
+ 'brightness(1.05) contrast(1.15) saturate(0.2) sepia(85%)', // 17: Sepia Antique Daguerreotype
+ 'brightness(0.9) contrast(1.2) saturate(0.3) grayscale(50%)', // 18: Gothic Midnight Desat
+ 'brightness(1.2) contrast(1.1) saturate(1.3) sepia(5%)' // 19: Hyper-Luminous Pop
         ];
 
-        if (index === 0) {
+        if (index === 0 || index === 10) {
             resetFilters();
         } else {
             filters.profile = profiles[index];
@@ -411,12 +427,12 @@
 
         audioContextData = {
             context,
-            source,
-            splitter,
-            merger,
-            compressor,
-            eqActive: false,
-            compActive: false
+ source,
+ splitter,
+ merger,
+ compressor,
+ eqActive: false,
+ compActive: false
         };
     }
 
@@ -466,10 +482,10 @@
     function skipIntro() {
         const selectors = [
             'button[aria-label="Skip intro"]',
-            'button[role="Button"]',
-            '.skip-button',
-            'button.skip-button__text',
-            '.atvwebplayersdk-skipelement-button'
+ 'button[role="Button"]',
+ '.skip-button',
+ 'button.skip-button__text',
+ '.atvwebplayersdk-skipelement-button'
         ];
 
         for (const selector of selectors) {
@@ -522,7 +538,7 @@
 
                 localStorage.setItem(CACHE_KEY, JSON.stringify({
                     timestamp: Date.now(),
-                    hosts: blockedHosts
+                                                               hosts: blockedHosts
                 }));
                 observeForAds(blockedHosts);
             })
