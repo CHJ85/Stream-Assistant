@@ -7,8 +7,8 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - J / L or Left / Right - seek 5s backward / forward
  - Up / Down - volume control
  - M - Mute / unmute
- - K / Space bar / Mouse click - play / pause
- - Hold down space bar / left mouse button - Play video at 2x speed
+ - K / Space bar / Left mouse click - play / pause
+ - Hold down space bar / Left mouse button - Play video at 2x speed
  - F - Fullscreen
  - I - Skip intro
  - S - Jump forward 30 seconds. Useful when "skip intro" is not available or if you just want to fast forward a bit.
