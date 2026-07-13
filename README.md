@@ -25,16 +25,16 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - O - Toggle surround sound
  - V - Volume normalizer (dynamic range compression)
  - Ctrl + 1-9 - Apply shaders (Ctrl+0 to reset)
-    Available shaders:
-    Profile 1: Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams).
-    Profile 2: Vibrant Punch (Boosts dull, washed-out color grading).
-    Profile 3: Midnight Dark Room (Tames blinding white backgrounds for late-night viewing).
-    Profile 4: Warm Vintage Film (Gives digital transfers an aged, warm theatrical look).
-    Profile 5: Monochrome Noir (A crisp, high-contrast black-and-white conversion).
-    Profile 6: Cool Sci-Fi / Cyber (An inverted color scheme that acts as an emergency high-contrast dark mode).
-    Profile 7: Faded Archive Correction (Neutralizes nasty green or magenta color casts in old video rips).
-    Profile 8: Cinematic Crush (Deepens shadow details to hide background compression noise in dark scenes).
-    Profile 9: Crisp High-Key (Brightens up dim, murky master recordings without completely blowing out highlights).
+&nbsp;&nbsp;&nbsp;&nbsp;Available shaders:
+&nbsp;&nbsp; - Profile 1: Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams).
+&nbsp;&nbsp; - Profile 2: Vibrant Punch (Boosts dull, washed-out color grading).
+&nbsp;&nbsp; - Profile 3: Midnight Dark Room (Tames blinding white backgrounds for late-night viewing).
+&nbsp;&nbsp; - Profile 4: Warm Vintage Film (Gives digital transfers an aged, warm theatrical look).
+&nbsp;&nbsp; - Profile 5: Monochrome Noir (A crisp, high-contrast black-and-white conversion).
+&nbsp;&nbsp; - Profile 6: Cool Sci-Fi / Cyber (An inverted color scheme that acts as an emergency high-contrast dark mode).
+&nbsp;&nbsp; - Profile 7: Faded Archive Correction (Neutralizes nasty green or magenta color casts in old video rips).
+&nbsp;&nbsp; - Profile 8: Cinematic Crush (Deepens shadow details to hide background compression noise in dark scenes).
+&nbsp;&nbsp; - Profile 9: Crisp High-Key (Brightens up dim, murky master recordings without completely blowing out highlights).
 
 # Ad blocking
 This script does not block in-house ads such as self-promotion.
