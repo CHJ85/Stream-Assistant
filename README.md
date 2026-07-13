@@ -25,6 +25,8 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - O - Toggle surround sound
  - V - Volume normalizer (dynamic range compression)
  - Ctrl/Shift + 1-9 - Apply shaders (color grading and cosmetic texturing), Ctrl/Shift+0 to reset<br>
+ <details>
+  <summary>&nbsp;&nbsp;Click to see the list of all available shader profiles</summary>
 &nbsp;&nbsp;Ctrl+1: Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)<br>
 &nbsp;&nbsp;Ctrl+2: Vibrant Punch (Boosts dull, washed-out color grading)<br>
 &nbsp;&nbsp;Ctrl+3: Midnight Dark Room (Tames blinding white backgrounds for late-night viewing)<br>
@@ -42,7 +44,7 @@ NOTE: YouTube support has now been removed from this project and replace by [You
 &nbsp;&nbsp;Shift+6: Solarized Retro Psychedelia (A wild, experimental acid-trip look for music or surreal content)<br>
 &nbsp;&nbsp;Shift+7: Sepia Antique Daguerreotype (Pushes an extreme historical photo/film aesthetic)<br>
 &nbsp;&nbsp;Shift+8: Gothic Midnight Desat (A drained, moody look that strips the color down to a ghostly silver tint)<br>
-&nbsp;&nbsp;Shift+9: Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)<br>
+&nbsp;&nbsp;Shift+9: Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)</details><br>
 
 # Ad blocking
 This script does not block in-house ads such as self-promotion.
