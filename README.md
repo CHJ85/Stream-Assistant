@@ -24,17 +24,26 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - Shift+Left / Shift+Right - Change contrast
  - O - Toggle surround sound
  - V - Volume normalizer (dynamic range compression)
- - Ctrl + 1-9 - Apply shaders (Ctrl+0 to reset)<br>
+ - Ctrl/Shift + 1-9 - Apply shaders (Ctrl/Shift+0 to reset)<br>
 &nbsp;&nbsp;&nbsp;Available shaders:<br>
-&nbsp;&nbsp;Profile 1: Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)<br>
-&nbsp;&nbsp;Profile 2: Vibrant Punch (Boosts dull, washed-out color grading)<br>
-&nbsp;&nbsp;Profile 3: Midnight Dark Room (Tames blinding white backgrounds for late-night viewing)<br>
-&nbsp;&nbsp;Profile 4: Warm Vintage Film (Gives digital transfers an aged, warm theatrical look)<br>
-&nbsp;&nbsp;Profile 5: Monochrome Noir (A crisp, high-contrast black-and-white conversion)<br>
-&nbsp;&nbsp;Profile 6: Cool Sci-Fi / Cyber (An inverted color scheme that acts as an emergency high-contrast dark mode)<br>
-&nbsp;&nbsp;Profile 7: Faded Archive Correction (Neutralizes nasty green or magenta color casts in old video rips)<br>
-&nbsp;&nbsp;Profile 8: Cinematic Crush (Deepens shadow details to hide background compression noise in dark scenes)<br>
-&nbsp;&nbsp;Profile 9: Crisp High-Key (Brightens up dim, murky master recordings without completely blowing out highlights)<br>
+&nbsp;&nbsp;Ctrl+1: Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)<br>
+&nbsp;&nbsp;Ctrl+2: Vibrant Punch (Boosts dull, washed-out color grading)<br>
+&nbsp;&nbsp;Ctrl+3: Midnight Dark Room (Tames blinding white backgrounds for late-night viewing)<br>
+&nbsp;&nbsp;Ctrl+4: Warm Vintage Film (Gives digital transfers an aged, warm theatrical look)<br>
+&nbsp;&nbsp;Ctrl+5: Monochrome Noir (A crisp, high-contrast black-and-white conversion)<br>
+&nbsp;&nbsp;Ctrl+6: Cool Sci-Fi / Cyber (An inverted color scheme that acts as an emergency high-contrast dark mode)<br>
+&nbsp;&nbsp;Ctrl+7: Faded Archive Correction (Neutralizes nasty green or magenta color casts in old video rips)<br>
+&nbsp;&nbsp;Ctrl+8: Cinematic Crush (Deepens shadow details to hide background compression noise in dark scenes)<br>
+&nbsp;&nbsp;Ctrl+9: Crisp High-Key (Brightens up dim, murky master recordings without completely blowing out highlights)<br>
+&nbsp;&nbsp;Shift+1: Teal & Orange Blockbuster (Pushes a stylized modern Hollywood color grade)<br>
+&nbsp;&nbsp;Shift+2: Deep Cyberpunk Neon (Enhances purples, blues, and electric tones)<br>
+&nbsp;&nbsp;Shift+3: Aged 16mm Horror Grain/Warmth (Heavier vintage look than profile 4, great for gritty 70s/80s analog rips)<br>
+&nbsp;&nbsp;Shift+4: High-Contrast Silhouette / Edge Out (Crushes midtones heavily to create high-drama shadow play)<br>
+&nbsp;&nbsp;Shift+5: Muted Atmospheric Depths (A cold, desaturated blue tint suited for bleak winter or thriller scenes)<br>
+&nbsp;&nbsp;Shift+6: Solarized Retro Psychedelia (A wild, experimental acid-trip look for music or surreal content)<br>
+&nbsp;&nbsp;Shift+7: Sepia Antique Daguerreotype (Pushes an extreme historical photo/film aesthetic)<br>
+&nbsp;&nbsp;Shift+8: Gothic Midnight Desat (A drained, moody look that strips the color down to a ghostly silver tint)<br>
+&nbsp;&nbsp;Shift+9: Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)<br>
 
 # Ad blocking
 This script does not block in-house ads such as self-promotion.
