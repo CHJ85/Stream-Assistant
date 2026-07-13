@@ -24,17 +24,17 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - Shift+Left / Shift+Right - Change contrast
  - O - Toggle surround sound
  - V - Volume normalizer (dynamic range compression)
- - Ctrl + 1-9 - Apply shaders (Ctrl+0 to reset)
-&nbsp;&nbsp;&nbsp;&nbsp;Available shaders:<br>
-&nbsp;&nbsp; - Profile 1: Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)<br>
-&nbsp;&nbsp; - Profile 2: Vibrant Punch (Boosts dull, washed-out color grading)<br>
-&nbsp;&nbsp; - Profile 3: Midnight Dark Room (Tames blinding white backgrounds for late-night viewing)<br>
-&nbsp;&nbsp; - Profile 4: Warm Vintage Film (Gives digital transfers an aged, warm theatrical look)<br>
-&nbsp;&nbsp; - Profile 5: Monochrome Noir (A crisp, high-contrast black-and-white conversion)<br>
-&nbsp;&nbsp; - Profile 6: Cool Sci-Fi / Cyber (An inverted color scheme that acts as an emergency high-contrast dark mode)<br>
-&nbsp;&nbsp; - Profile 7: Faded Archive Correction (Neutralizes nasty green or magenta color casts in old video rips)<br>
-&nbsp;&nbsp; - Profile 8: Cinematic Crush (Deepens shadow details to hide background compression noise in dark scenes)<br>
-&nbsp;&nbsp; - Profile 9: Crisp High-Key (Brightens up dim, murky master recordings without completely blowing out highlights)<br>
+ - Ctrl + 1-9 - Apply shaders (Ctrl+0 to reset)<br>
+&nbsp;&nbsp;&nbsp;Available shaders:<br>
+&nbsp;&nbsp;Profile 1: Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)<br>
+&nbsp;&nbsp;Profile 2: Vibrant Punch (Boosts dull, washed-out color grading)<br>
+&nbsp;&nbsp;Profile 3: Midnight Dark Room (Tames blinding white backgrounds for late-night viewing)<br>
+&nbsp;&nbsp;Profile 4: Warm Vintage Film (Gives digital transfers an aged, warm theatrical look)<br>
+&nbsp;&nbsp;Profile 5: Monochrome Noir (A crisp, high-contrast black-and-white conversion)<br>
+&nbsp;&nbsp;Profile 6: Cool Sci-Fi / Cyber (An inverted color scheme that acts as an emergency high-contrast dark mode)<br>
+&nbsp;&nbsp;Profile 7: Faded Archive Correction (Neutralizes nasty green or magenta color casts in old video rips)<br>
+&nbsp;&nbsp;Profile 8: Cinematic Crush (Deepens shadow details to hide background compression noise in dark scenes)<br>
+&nbsp;&nbsp;Profile 9: Crisp High-Key (Brightens up dim, murky master recordings without completely blowing out highlights)<br>
 
 # Ad blocking
 This script does not block in-house ads such as self-promotion.
