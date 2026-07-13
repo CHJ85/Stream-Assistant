@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.9.3
+// @version      2.9.4
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -41,6 +41,7 @@
 // @match        https://www.investigationdiscovery.com/*
 // @match        https://audiovisual.ec.europa.eu/*
 // @match        https://www.dazn.com/*
+// @match        https://*.youtube.com/*
 // @match        https://multimedia.europarl.europa.eu/*
 // @icon         https://i.imgur.com/pwiVt0N.png
 // @license      MIT
@@ -66,7 +67,7 @@
     let video = null;
     let fastSeek = false;
     let aspectRatioOption = 0;
-    
+
     // Video Filters State
     const filters = {
         brightness: 1.0,
@@ -130,7 +131,7 @@
                             originalPlaybackSpeed = video.playbackRate || 1.0;
                             video.playbackRate = 2.0;
                             spacebarSpeedUp = true;
-                            
+
                             // Enforce 2x speed in case the site forces it back
                             clearInterval(enforceSpeedInterval);
                             enforceSpeedInterval = setInterval(() => {
@@ -172,6 +173,7 @@
             case '>': case '+': adjustPlaybackSpeed(1); break;
             case 'a': toggleAspectRatio(); break;
             case 'o': toggleEqualizer(); break;
+            case 'v': toggleCompressor(); break;
             case 'b': toggleBlackAndWhite(); break;
             case 'i': skipIntro(); break;
             case 'h': adjustFilter('hue', config.hueStep); break;
@@ -190,7 +192,7 @@
         if (e.key === ' ') {
             e.preventDefault();
             e.stopImmediatePropagation();
-            
+
             const duration = Date.now() - spacebarKeyDownTime;
             spacebarHeldDown = false;
             clearTimeout(spacebarTimer);
@@ -209,21 +211,21 @@
     // --- Mouse Global Listeners (Bypasses Overlays) ---
     function handleMouseDown(e) {
         if (e.button !== 0) return; // Left click only
-        
+
         // Ensure we don't trigger hold-to-speed when clicking buttons, links, or UI
         const targetTag = e.target.tagName ? e.target.tagName.toLowerCase() : '';
         if (['input', 'textarea', 'button', 'a', 'select'].includes(targetTag) || e.target.closest('button, a, .skip-button')) return;
 
         mouseDownTime = Date.now();
         isMouseHeldDown = true;
-        
+
         mouseHoldTimer = setTimeout(() => {
             if (isMouseHeldDown) {
                 loadVideo();
                 if (video) {
                     originalPlaybackSpeed = video.playbackRate || 1.0;
                     video.playbackRate = 2.0;
-                    
+
                     clearInterval(enforceSpeedInterval);
                     enforceSpeedInterval = setInterval(() => {
                         if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
@@ -235,13 +237,13 @@
 
     function handleMouseUp(e) {
         if (e.button !== 0) return;
-        
+
         if (isMouseHeldDown) {
             const duration = Date.now() - mouseDownTime;
             isMouseHeldDown = false;
             clearTimeout(mouseHoldTimer);
             clearInterval(enforceSpeedInterval);
-            
+
             if (duration >= config.holdThreshold && video) {
                 video.playbackRate = originalPlaybackSpeed;
             }
@@ -321,7 +323,7 @@
         if (type === 'hue') {
             filters.hue = (filters.hue + amount) % 360;
         } else {
-            const max = type === 'brightness' ? 3 : 2; 
+            const max = type === 'brightness' ? 3 : 2;
             filters[type] = clamp(filters[type] + amount, 0, max);
         }
         applyFilters();
@@ -344,40 +346,88 @@
         applyFilters();
     }
 
+    // --- Unified Audio Graph Management ---
+    function initAudioGraph() {
+        if (audioContextData) return;
+
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+        const source = context.createMediaElementSource(video);
+
+        // Equalizer Nodes
+        const splitter = context.createChannelSplitter(2);
+        const merger = context.createChannelMerger(2);
+        const leftDelay = context.createDelay();
+        const rightDelay = context.createDelay();
+
+        leftDelay.delayTime.value = 0;
+        rightDelay.delayTime.value = 0.01;
+
+        splitter.connect(leftDelay, 0);
+        splitter.connect(rightDelay, 1);
+        leftDelay.connect(merger, 0, 0);
+        rightDelay.connect(merger, 0, 1);
+
+        // Dynamic Range Compressor Node
+        const compressor = context.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-24, context.currentTime);
+        compressor.knee.setValueAtTime(30, context.currentTime);
+        compressor.ratio.setValueAtTime(4, context.currentTime);
+        compressor.attack.setValueAtTime(0.003, context.currentTime);
+        compressor.release.setValueAtTime(0.25, context.currentTime);
+
+        audioContextData = {
+            context,
+            source,
+            splitter,
+            merger,
+            compressor,
+            eqActive: false,
+            compActive: false
+        };
+    }
+
+    function updateAudioRouting() {
+        if (!audioContextData) return;
+        const { context, source, splitter, merger, compressor, eqActive, compActive } = audioContextData;
+
+        // Disconnect everything to rebuild the chain cleanly
+        source.disconnect();
+        merger.disconnect();
+        compressor.disconnect();
+
+        let currentNode = source;
+
+        // If Equalizer is active, route through splitter/merger
+        if (eqActive) {
+            currentNode.connect(splitter);
+            currentNode = merger;
+        }
+
+        // If Compressor is active, route through compressor
+        if (compActive) {
+            currentNode.connect(compressor);
+            currentNode = compressor;
+        }
+
+        // Finally, connect the last node in the chain to the destination
+        currentNode.connect(context.destination);
+    }
+
     function toggleEqualizer() {
         if (!video) return;
-
-        if (audioContextData && audioContextData.active) {
-            audioContextData.source.disconnect();
-            audioContextData.source.connect(audioContextData.context.destination);
-            audioContextData.active = false;
-        } else {
-            if (!audioContextData) {
-                const context = new (window.AudioContext || window.webkitAudioContext)();
-                const source = context.createMediaElementSource(video);
-                
-                const splitter = context.createChannelSplitter(2);
-                const merger = context.createChannelMerger(2);
-                const leftDelay = context.createDelay();
-                const rightDelay = context.createDelay();
-
-                leftDelay.delayTime.value = 0;
-                rightDelay.delayTime.value = 0.01;
-
-                splitter.connect(leftDelay, 0);
-                splitter.connect(rightDelay, 1);
-                leftDelay.connect(merger, 0, 0);
-                rightDelay.connect(merger, 0, 1);
-                
-                audioContextData = { context, source, splitter, merger, active: false };
-            }
-
-            audioContextData.source.disconnect();
-            audioContextData.source.connect(audioContextData.splitter);
-            audioContextData.merger.connect(audioContextData.context.destination);
-            audioContextData.active = true;
-        }
+        initAudioGraph();
+        audioContextData.eqActive = !audioContextData.eqActive;
+        updateAudioRouting();
     }
+
+    function toggleCompressor() {
+        if (!video) return;
+        initAudioGraph();
+        audioContextData.compActive = !audioContextData.compActive;
+        updateAudioRouting();
+    }
+
+    // --- End Audio Management ---
 
     function skipIntro() {
         const selectors = [
@@ -387,7 +437,7 @@
             'button.skip-button__text',
             '.atvwebplayersdk-skipelement-button'
         ];
-        
+
         for (const selector of selectors) {
             const btns = document.querySelectorAll(selector);
             for (const btn of btns) {
@@ -423,33 +473,33 @@
     function initHostBlocker() {
         const CACHE_KEY = 'StreamAssistant_HostsCache';
         const CACHE_TIME = 24 * 60 * 60 * 1000;
-        
+
         const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-        
+
         if (cachedData && (Date.now() - cachedData.timestamp < CACHE_TIME)) {
             observeForAds(cachedData.hosts);
         } else {
             fetch('https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts')
-                .then(res => res.text())
-                .then(text => {
-                    const blockedHosts = text.split('\n')
-                        .filter(line => line.startsWith('0.0.0.0'))
-                        .map(line => line.split(' ')[1]);
-                    
-                    localStorage.setItem(CACHE_KEY, JSON.stringify({
-                        timestamp: Date.now(),
-                        hosts: blockedHosts
-                    }));
-                    observeForAds(blockedHosts);
-                })
-                .catch(err => console.error('Failed to fetch hosts:', err));
+            .then(res => res.text())
+            .then(text => {
+                const blockedHosts = text.split('\n')
+                .filter(line => line.startsWith('0.0.0.0'))
+                .map(line => line.split(' ')[1]);
+
+                localStorage.setItem(CACHE_KEY, JSON.stringify({
+                    timestamp: Date.now(),
+                    hosts: blockedHosts
+                }));
+                observeForAds(blockedHosts);
+            })
+            .catch(err => console.error('Failed to fetch hosts:', err));
         }
     }
 
     function observeForAds(blockedHosts) {
         const observer = new MutationObserver(mutations => {
             let shouldRemoveAds = false;
-            
+
             mutations.forEach(mutation => {
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
                     mutation.addedNodes.forEach(node => {
@@ -461,7 +511,7 @@
                             }
                         }
                         if (node.nodeType === 1 && (
-                            (node.className && typeof node.className === 'string' && 
+                            (node.className && typeof node.className === 'string' &&
                             (node.className.includes('AdInfoBar') || node.className.includes('AdsContainer') || node.className.includes('abvsVideo')))
                         )) {
                             shouldRemoveAds = true;
@@ -469,11 +519,11 @@
                     });
                 }
             });
-            
+
             if (shouldRemoveAds) removeAds();
         });
 
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
