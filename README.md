@@ -23,6 +23,7 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - Shift+Up / Shift+Down - Change saturation
  - Shift+Left / Shift+Right - Change contrast
  - O - Toggle surround sound
+ - V - Volume Vormalizer (Dynamic range compression)
 # Ad blocking
 This script does not block in-house ads such as self-promotion.
 And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
@@ -61,6 +62,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - The Roku Channel
 - Tubi
 - Vaughn Live
+- YouTube
 # Somewhat supported streaming services (BETA status)
 - Plex − Their ads can be a bit intrusive. And sometimes, the audio from these ads make their way in while the movie or TV show is playing. And sometimes, it crashes the video player. If this happens, just hit refresh. This only applies to their free TV shows and movies.
 # Installation
