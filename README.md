@@ -23,7 +23,7 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - Shift+Up / Shift+Down - Change saturation
  - Shift+Left / Shift+Right - Change contrast
  - O - Toggle surround sound
- - V - Volume Vormalizer (Dynamic range compression)
+ - V - Volume normalizer (dynamic range compression)
 # Ad blocking
 This script does not block in-house ads such as self-promotion.
 And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
