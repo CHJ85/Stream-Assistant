@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.9.6
+// @version      2.9.7
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -75,7 +75,8 @@
         saturation: 1.0,
         contrast: 1.0,
         special: 'none',
-        profile: null // Stores active shader profile
+        profile: null, // Stores active CSS filter string
+        svgOverlay: null // Stores active SVG data URI
     };
 
     // Playback & Timing State
@@ -160,7 +161,7 @@
                 applyProfile(e.ctrlKey ? digit : digit + 10);
                 return;
             }
-
+            
             if (e.ctrlKey && e.key === 'ArrowUp') { e.preventDefault(); adjustFilter('brightness', config.brightnessStep); }
             else if (e.ctrlKey && e.key === 'ArrowDown') { e.preventDefault(); adjustFilter('brightness', -config.brightnessStep); }
             else if (e.ctrlKey && e.key === 'ArrowRight') { e.preventDefault(); adjustFilter('hue', config.hueStep); }
@@ -326,8 +327,8 @@
         if (!video) return;
         const options = [
             { fit: 'fill', pos: 'center' },
- { fit: 'contain', pos: 'center' },
- { fit: 'cover', pos: 'center' }
+            { fit: 'contain', pos: 'center' },
+            { fit: 'cover', pos: 'center' }
         ];
         video.style.objectFit = options[aspectRatioOption].fit;
         video.style.objectPosition = options[aspectRatioOption].pos;
@@ -336,6 +337,7 @@
 
     function adjustFilter(type, amount) {
         filters.profile = null; // Clear active profile when making manual adjustments
+        filters.svgOverlay = null; // Clear active SVG
         if (type === 'hue') {
             filters.hue = (filters.hue + amount) % 360;
         } else {
@@ -345,40 +347,72 @@
         applyFilters();
     }
 
+    // --- Profile & SVG Overlay Logic ---
+    function initSVGOverlayTracker() {
+        if (!document.getElementById('sa-svg-overlay')) {
+            const overlay = document.createElement('div');
+            overlay.id = 'sa-svg-overlay';
+            overlay.style.pointerEvents = 'none'; // Clicks pass right through to the video player
+            overlay.style.position = 'absolute';
+            overlay.style.zIndex = '2147483647'; // Pin above site UIs
+            overlay.style.display = 'none';
+            document.body.appendChild(overlay);
+            
+            // Loop updates positioning perfectly on resize/fullscreen changes without hooking heavy event listeners
+            setInterval(() => {
+                if (video && filters.svgOverlay) {
+                    const rect = video.getBoundingClientRect();
+                    overlay.style.top = (window.scrollY + rect.top) + 'px';
+                    overlay.style.left = (window.scrollX + rect.left) + 'px';
+                    overlay.style.width = rect.width + 'px';
+                    overlay.style.height = rect.height + 'px';
+                    if (overlay.style.backgroundImage !== `url("${filters.svgOverlay}")`) {
+                        overlay.style.backgroundImage = `url("${filters.svgOverlay}")`;
+                    }
+                    overlay.style.display = 'block';
+                } else {
+                    overlay.style.display = 'none';
+                }
+            }, 100);
+        }
+    }
+
     function applyProfile(index) {
         const profiles = [
-            null, // 0: Reset (Ctrl+0)
-'brightness(1.05) contrast(1.1) saturate(0.9) blur(0.3px)', // 1: Retro CRT Soften
- 'brightness(1.0) contrast(1.15) saturate(1.2) hue-rotate(0deg)', // 2: Vibrant Punch
- 'brightness(0.9) contrast(1.2) saturate(0.85) invert(5%)', // 3: Midnight Dark Room
- 'brightness(1.0) contrast(1.05) saturate(0.9) sepia(25%)', // 4: Warm Vintage Film
- 'brightness(1.0) contrast(1.25) saturate(0%) grayscale(100%)', // 5: Monochrome Noir
- 'brightness(1.0) contrast(1.15) saturate(1.1) hue-rotate(180deg) invert(100%)', // 6: Cool Sci-Fi / Cyber
- 'brightness(1.05) contrast(1.1) saturate(0.7) sepia(10%)', // 7: Faded Archive Correction
- 'brightness(0.95) contrast(1.3) saturate(1.05)', // 8: Cinematic Crush
- 'brightness(1.15) contrast(1.05) saturate(1.05)', // 9: Crisp High-Key
- null, // 10: Reset (Shift+0)
-'brightness(1.0) contrast(1.15) saturate(1.1) sepia(15%) hue-rotate(180deg)', // 11: Teal & Orange Blockbuster
- 'brightness(0.95) contrast(1.25) saturate(1.4) hue-rotate(270deg)', // 12: Deep Cyberpunk Neon
- 'brightness(1.0) contrast(1.1) saturate(0.8) sepia(40%)', // 13: Aged 16mm Horror Grain/Warmth
- 'brightness(0.85) contrast(1.5) saturate(0.9)', // 14: High-Contrast Silhouette / Edge Out
- 'brightness(0.95) contrast(1.05) saturate(0.5) hue-rotate(190deg)', // 15: Muted Atmospheric Depths
- 'brightness(1.1) contrast(1.2) saturate(1.5) invert(30%) hue-rotate(90deg)', // 16: Solarized Retro Psychedelia
- 'brightness(1.05) contrast(1.15) saturate(0.2) sepia(85%)', // 17: Sepia Antique Daguerreotype
- 'brightness(0.9) contrast(1.2) saturate(0.3) grayscale(50%)', // 18: Gothic Midnight Desat
- 'brightness(1.2) contrast(1.1) saturate(1.3) sepia(5%)' // 19: Hyper-Luminous Pop
+            { filter: null, svg: null }, // 0: Reset (Ctrl+0)
+            { filter: 'brightness(1.05) contrast(1.1) saturate(0.9) blur(0.3px)', svg: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='2' fill='rgba(0,0,0,0.15)'/%3E%3C/svg%3E" }, // 1: Retro CRT Soften
+            { filter: 'brightness(1.0) contrast(1.15) saturate(1.2) hue-rotate(0deg)', svg: null }, // 2: Vibrant Punch
+            { filter: 'brightness(0.9) contrast(1.2) saturate(0.85) invert(5%)', svg: null }, // 3: Midnight Dark Room
+            { filter: 'brightness(1.0) contrast(1.05) saturate(0.9) sepia(25%)', svg: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E" }, // 4: Warm Vintage Film
+            { filter: 'brightness(1.0) contrast(1.25) saturate(0%) grayscale(100%)', svg: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3'%3E%3Crect width='3' height='1' fill='rgba(0,0,0,0.25)'/%3E%3Crect width='1' height='3' fill='rgba(0,0,0,0.25)'/%3E%3C/svg%3E" }, // 5: Monochrome Noir
+            { filter: 'brightness(1.0) contrast(1.15) saturate(1.1) hue-rotate(180deg) invert(100%)', svg: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='none' stroke='rgba(0,255,255,0.05)' stroke-width='1'/%3E%3C/svg%3E" }, // 6: Cool Sci-Fi / Cyber
+            { filter: 'brightness(1.05) contrast(1.1) saturate(0.7) sepia(10%)', svg: null }, // 7: Faded Archive Correction
+            { filter: 'brightness(0.95) contrast(1.3) saturate(1.05)', svg: null }, // 8: Cinematic Crush
+            { filter: 'brightness(1.15) contrast(1.05) saturate(1.05)', svg: null }, // 9: Crisp High-Key
+            { filter: null, svg: null }, // 10: Reset (Shift+0)
+            { filter: 'brightness(1.0) contrast(1.15) saturate(1.1) sepia(15%) hue-rotate(180deg)', svg: null }, // 11: Teal & Orange Blockbuster
+            { filter: 'brightness(0.95) contrast(1.25) saturate(1.4) hue-rotate(270deg)', svg: null }, // 12: Deep Cyberpunk Neon
+            { filter: 'brightness(1.0) contrast(1.1) saturate(0.8) sepia(40%)', svg: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3Cline x1='50' y1='0' x2='50' y2='200' stroke='rgba(0,0,0,0.15)' stroke-width='1'/%3E%3C/svg%3E" }, // 13: Aged 16mm Horror Grain/Warmth
+            { filter: 'brightness(0.85) contrast(1.5) saturate(0.9)', svg: null }, // 14: High-Contrast Silhouette / Edge Out
+            { filter: 'brightness(0.95) contrast(1.05) saturate(0.5) hue-rotate(190deg)', svg: null }, // 15: Muted Atmospheric Depths
+            { filter: 'brightness(1.1) contrast(1.2) saturate(1.5) invert(30%) hue-rotate(90deg)', svg: null }, // 16: Solarized Retro Psychedelia
+            { filter: 'brightness(1.05) contrast(1.15) saturate(0.2) sepia(85%)', svg: null }, // 17: Sepia Antique Daguerreotype
+            { filter: 'brightness(0.9) contrast(1.2) saturate(0.3) grayscale(50%)', svg: null }, // 18: Gothic Midnight Desat
+            { filter: 'brightness(1.2) contrast(1.1) saturate(1.3) sepia(5%)', svg: null } // 19: Hyper-Luminous Pop
         ];
 
         if (index === 0 || index === 10) {
             resetFilters();
         } else {
-            filters.profile = profiles[index];
+            filters.profile = profiles[index].filter;
+            filters.svgOverlay = profiles[index].svg;
             applyFilters();
         }
     }
 
     function toggleBlackAndWhite() {
         filters.profile = null; // Clear active profile when manually toggling B&W
+        filters.svgOverlay = null;
         if (filters.special === 'none') filters.special = 'grayscale(100%)';
         else if (filters.special === 'grayscale(100%)') filters.special = 'sepia(100%)';
         else if (filters.special === 'sepia(100%)') filters.special = 'invert(100%)';
@@ -393,6 +427,7 @@
         filters.contrast = 1.0;
         filters.special = 'none';
         filters.profile = null;
+        filters.svgOverlay = null;
         applyFilters();
     }
 
@@ -425,14 +460,14 @@
         compressor.attack.setValueAtTime(0.003, context.currentTime);
         compressor.release.setValueAtTime(0.25, context.currentTime);
 
-        audioContextData = {
-            context,
- source,
- splitter,
- merger,
- compressor,
- eqActive: false,
- compActive: false
+        audioContextData = { 
+            context, 
+            source, 
+            splitter, 
+            merger, 
+            compressor, 
+            eqActive: false, 
+            compActive: false 
         };
     }
 
@@ -450,7 +485,7 @@
         // If Equalizer is active, route through splitter/merger
         if (eqActive) {
             currentNode.connect(splitter);
-            currentNode = merger;
+            currentNode = merger; 
         }
 
         // If Compressor is active, route through compressor
@@ -482,10 +517,10 @@
     function skipIntro() {
         const selectors = [
             'button[aria-label="Skip intro"]',
- 'button[role="Button"]',
- '.skip-button',
- 'button.skip-button__text',
- '.atvwebplayersdk-skipelement-button'
+            'button[role="Button"]',
+            '.skip-button',
+            'button.skip-button__text',
+            '.atvwebplayersdk-skipelement-button'
         ];
 
         for (const selector of selectors) {
@@ -538,7 +573,7 @@
 
                 localStorage.setItem(CACHE_KEY, JSON.stringify({
                     timestamp: Date.now(),
-                                                               hosts: blockedHosts
+                    hosts: blockedHosts
                 }));
                 observeForAds(blockedHosts);
             })
@@ -578,6 +613,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         loadVideo();
+        initSVGOverlayTracker();
         removeAds();
         initHostBlocker();
     });
