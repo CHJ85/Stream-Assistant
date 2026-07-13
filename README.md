@@ -24,7 +24,7 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - Shift+Left / Shift+Right - Change contrast
  - O - Toggle surround sound
  - V - Volume normalizer (dynamic range compression)
- - Ctrl/Shift + 1-9 - Apply shaders (color grading and cosmetic texturing), Ctrl/Shift+0 to reset<br>
+ - Ctrl/Shift + 1-9 - Apply shaders (color grading and cosmetic texturing), Ctrl/Shift+0 to reset
  <details>
   <summary>&nbsp;&nbsp;Click to see the list of all available shader profiles</summary>
 &nbsp;&nbsp;Ctrl+1: Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)<br>
