@@ -18,7 +18,6 @@
 // @match        https://www.twitch.tv/*
 // @match        https://tv.apple.com/*
 // @match        https://rumble.com/*
-// @match        https://www.netflix.com/*
 // @match        https://www.adultswim.com/*
 // @match        https://www.amcplus.com/*
 // @match        https://*.crunchyroll.com/*
