@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.9.8
+// @version      2.9.9
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -50,6 +50,8 @@
 // @match        https://www.dazn.com/*
 // @match        https://*.youtube.com/*
 // @match        https://multimedia.europarl.europa.eu/*
+// @updateURL    https://github.com/chj85/Stream-Assistant/raw/main/main.user.js
+// @downloadURL  https://github.com/chj85/Stream-Assistant/raw/main/main.user.js
 // @icon         https://i.imgur.com/pwiVt0N.png
 // @license      MIT
 // @grant        none
