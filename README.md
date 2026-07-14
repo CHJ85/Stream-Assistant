@@ -76,7 +76,6 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Klowd TV
 - Magellan TV
 - Midnight Pulp
-- Netflix
 - Ovation TV
 - Paramount+
 - Peacock TV
