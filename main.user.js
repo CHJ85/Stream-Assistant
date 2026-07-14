@@ -15,7 +15,10 @@
 // @match        https://www.peacocktv.com/*
 // @match        https://www.cc.com/*
 // @match        https://kick.com/*
+// @match        https://www.twitch.tv/*
+// @match        https://tv.apple.com/*
 // @match        https://rumble.com/*
+// @match        https://www.netflix.com/*
 // @match        https://www.adultswim.com/*
 // @match        https://www.amcplus.com/*
 // @match        https://*.crunchyroll.com/*
@@ -26,6 +29,7 @@
 // @match        https://watch.plex.tv/*
 // @match        https://www.ovationtv.com/*
 // @match        https://www.fox.com/*
+// @match        https://www.disneyplus.com/*
 // @match        https://vaughn.live/*
 // @match        https://tubitv.com/*
 // @match        https://www.hidive.com/*
