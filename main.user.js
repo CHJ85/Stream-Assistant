@@ -37,10 +37,12 @@
 // @match        https://www.dovechannel.com/*
 // @match        https://www.midnightpulp.com/*
 // @match        https://www.klowdtv.com/*
+// @match        https://www.vimeo.com/*
 // @match        https://more.clownfishtv.com/*
 // @match        https://www.ruptly.tv/*
 // @match        https://therokuchannel.roku.com/*
 // @match        https://pluto.tv/*
+// @match        https://www.dailymotion.com/*
 // @match        https://distro.tv/*
 // @match        https://www.paramountplus.com/*
 // @match        https://www.investigationdiscovery.com/*
