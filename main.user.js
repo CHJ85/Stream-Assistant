@@ -53,6 +53,8 @@
 // @updateURL    https://github.com/chj85/Stream-Assistant/raw/main/main.user.js
 // @downloadURL  https://github.com/chj85/Stream-Assistant/raw/main/main.user.js
 // @icon         https://i.imgur.com/pwiVt0N.png
+// @homepageURL  https://github.com/CHJ85/Stream-Assistant/blob/main/README.md
+// @supportURL   https://github.com/CHJ85/Stream-Assistant/issues
 // @license      MIT
 // @grant        none
 // ==/UserScript==
