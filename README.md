@@ -57,6 +57,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Clownfish TV
 - Comedy Central
 - Crunchyroll
+- DailyMotion
 - DAZN
 - Discovery+
 - Disney+
@@ -89,6 +90,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Tubi
 - Twitch
 - Vaughn Live
+- Vimeo
 - YouTube
 # Installation
 To use the script:
