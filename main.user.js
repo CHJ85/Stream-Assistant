@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      2.9.7
+// @version      2.9.8
 // @description  Adds keyboard shortcuts and additional features to various streaming services.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -25,6 +25,7 @@
 // @match        https://www.magellantv.com/*
 // @match        https://watch.spectrum.net/*
 // @match        https://watch.sling.com/*
+// @match        https://fawesome.tv/*
 // @match        https://app.plex.tv/*
 // @match        https://watch.plex.tv/*
 // @match        https://www.ovationtv.com/*
