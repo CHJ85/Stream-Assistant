@@ -53,11 +53,13 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Adult Swim
 - Amazon Prime Video
 - AMC+
+- Apple TV+
 - Clownfish TV
 - Comedy Central
 - Crunchyroll
 - DAZN
 - Discovery+
+- Disney+
 - Distro TV
 - Dove Channel
 - Fox
@@ -72,6 +74,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Klowd TV
 - Magellan TV
 - Midnight Pulp
+- Netflix
 - Ovation TV
 - Paramount+
 - Peacock TV
@@ -84,6 +87,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Spectrum
 - The Roku Channel
 - Tubi
+- Twitch
 - Vaughn Live
 - YouTube
 # Installation
