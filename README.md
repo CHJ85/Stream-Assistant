@@ -18,10 +18,10 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - A - Change aspect ratio on non-widescreen content (choose between zoom or stretch)
  - B - Video filters: black & white, sepia and invert colors
  - Ctrl+Up / Ctrl+Down - Change brightness
- - H or Ctrl+Left / Ctrl+Right - Hue color control (does not override YouTube's chepter skip feature)
- - R - Revert filters (brightness, contrast, hue, and saturation) back to normal
+ - Ctrl+Left / Ctrl+Right or hold down H - Hue color control (does not override YouTube's chepter skip feature)
  - Shift+Up / Shift+Down - Change saturation
  - Shift+Left / Shift+Right - Change contrast
+ - R - Revert filters (brightness, contrast, hue, and saturation) back to normal
  - O - Toggle surround sound
  - V - Volume normalizer (dynamic range compression)
  - Ctrl/Shift + 1-9 - Apply shaders (color grading and cosmetic texturing), Ctrl/Shift+0 to reset
