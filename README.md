@@ -75,6 +75,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Ovation TV
 - Paramount+
 - Peacock TV
+- Plex
 - Pluto TV
 - PureFlix
 - Retro Crush
@@ -85,8 +86,6 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Tubi
 - Vaughn Live
 - YouTube
-# Somewhat supported streaming services (BETA status)
-- Plex − Their ads can be a bit intrusive. And sometimes, the audio from these ads make their way in while the movie or TV show is playing. And sometimes, it crashes the video player. If this happens, just hit refresh. This only applies to their free TV shows and movies.
 # Installation
 To use the script:
  - Install a userscript manager extension like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).
