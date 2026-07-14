@@ -63,6 +63,7 @@ And note that if an ad is not blocked, this script gives you numerous ways to fa
 - Disney+
 - Distro TV
 - Dove Channel
+- FAWESOME
 - Fox
 - FreeVee
 - Frndly TV
