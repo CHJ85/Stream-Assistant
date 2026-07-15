@@ -71,7 +71,7 @@
         hueStep: 10,
         saturationStep: 0.1,
         contrastStep: 0.1,
-        holdThreshold: 200 // ms to distinguish between click and hold
+        holdThreshold: 500 // ms to distinguish between click and hold
     };
 
     // --- State Management ---
