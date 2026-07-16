@@ -10,8 +10,8 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - K / Space bar / Left mouse click - play / pause
  - Hold down space bar / Left mouse button - Play video at 2x speed
  - F - Fullscreen
- - I - Skip intro
  - S - Jump forward 30 seconds. Useful when "skip intro" is not available or if you just want to fast forward a bit.
+ - I - Skip intro
  - N - Skip the end credit and jump straight to the next episode.
  - 0-9 - Jump to specific percentage. 0 = Beginning, 1 = 10% and so on.
  - Plus / Minus or > / < - Change playback speed faster / slower
@@ -26,7 +26,7 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - Hold down X - Censorship bleep
  - E+Up / E+Down - Bass control
  - E+Left / E+Right - Vocal control
- - E+M - Stereo/mono switch (useful if sound only comes out of one channel)
+ - E+M - Toggle mono (useful if sound only comes out of one channel)
  - E (Single press) - Revert bass, vocal controls and mono/stereo switch
  - V - Volume normalizer (dynamic range compression)
  - Ctrl/Shift + 1-9 - Apply shaders (color grading and cosmetic texturing), Ctrl/Shift+0 to reset
