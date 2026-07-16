@@ -415,6 +415,13 @@
     }
     function adjustPlaybackSpeed(direction) {
         if (video) {
+            // Stop any active spacebar or mouse hold-to-speed loops immediately
+            clearTimeout(spacebarTimer);
+            clearInterval(enforceSpeedInterval);
+            spacebarSpeedUp = false;
+            spacebarHeldDown = false;
+            isMouseHeldDown = false;
+
             playbackSpeed = clamp(playbackSpeed + direction * config.playbackSpeedStep, 0.25, 4);
             video.playbackRate = playbackSpeed;
         }
