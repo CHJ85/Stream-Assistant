@@ -15,14 +15,18 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - N - Skip the end credit and jump straight to the next episode.
  - 0-9 - Jump to specific percentage. 0 = Beginning, 1 = 10% and so on.
  - Plus / Minus or > / < - Change playback speed faster / slower
- - A - Change aspect ratio on non-widescreen content (choose between zoom or stretch)
- - B - Video filters: black & white, sepia and invert colors
+ - A - Change aspect ratio (zoom / stretch / normal)
+ - B - Cycle through video filters: black & white, sepia and invert colors
  - Ctrl+Up / Ctrl+Down - Change brightness
  - Ctrl+Left / Ctrl+Right or hold down H - Hue color control (does not override YouTube's chepter skip feature)
  - Shift+Up / Shift+Down - Change saturation
  - Shift+Left / Shift+Right - Change contrast
  - R - Revert filters (brightness, contrast, hue, and saturation) back to normal
  - O - Toggle surround sound
+ - Hold down X - Censorship bleep
+ - E+Up / E+Down - Bass control
+ - E+Left / E+Right - Vocal control
+ - E (Single press) - Revert bass and vocal controls
  - V - Volume normalizer (dynamic range compression)
  - Ctrl/Shift + 1-9 - Apply shaders (color grading and cosmetic texturing), Ctrl/Shift+0 to reset
  <details>
