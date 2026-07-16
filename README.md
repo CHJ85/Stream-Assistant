@@ -26,7 +26,8 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - Hold down X - Censorship bleep
  - E+Up / E+Down - Bass control
  - E+Left / E+Right - Vocal control
- - E (Single press) - Revert bass and vocal controls
+ - E+M - Stereo/mono switch (useful if sound only comes out of one channel)
+ - E (Single press) - Revert bass, vocal controls and mono/stereo switch
  - V - Volume normalizer (dynamic range compression)
  - Ctrl/Shift + 1-9 - Apply shaders (color grading and cosmetic texturing), Ctrl/Shift+0 to reset
  <details>
