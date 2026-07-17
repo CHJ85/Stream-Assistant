@@ -46,24 +46,24 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **Ctrl/Shift + 1-9** - Apply soft shader profiles (use **Ctrl/Shift + 0** to reset)
  <details>
   <summary>&nbsp;&nbsp;Click to see the list of all available shader profiles</summary>
-&nbsp;&nbsp;**Ctrl + 1** - Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)<br>
-&nbsp;&nbsp;**Ctrl + 2** - Vibrant Punch (Boosts dull, washed-out color grading)<br>
-&nbsp;&nbsp;**Ctrl + 3** - Midnight Dark Room (Tames blinding white backgrounds for late-night viewing)<br>
-&nbsp;&nbsp;**Ctrl + 4** - Warm Vintage Film (Gives digital transfers an aged, warm theatrical look)<br>
-&nbsp;&nbsp;**Ctrl + 5** - Monochrome Noir (A crisp, high-contrast black-and-white conversion)<br>
-&nbsp;&nbsp;**Ctrl + 6** - Cool Sci-Fi / Cyber (An inverted color scheme that acts as an emergency high-contrast dark mode)<br>
-&nbsp;&nbsp;**Ctrl + 7** - Faded Archive Correction (Neutralizes nasty green or magenta color casts in old video rips)<br>
-&nbsp;&nbsp;Ctrl+8: Cinematic Crush (Deepens shadow details to hide background compression noise in dark scenes)<br>
-&nbsp;&nbsp;Ctrl+9: Crisp High-Key (Brightens up dim, murky master recordings without completely blowing out highlights)<br>
-&nbsp;&nbsp;**Shift + 1** - Teal & Orange Blockbuster (Pushes a stylized modern Hollywood color grade)<br>
-&nbsp;&nbsp;**Shift + 2** - Deep Cyberpunk Neon (Enhances purples, blues, and electric tones)<br>
-&nbsp;&nbsp;**Shift + 3** - Aged 16mm Horror Grain/Warmth (Heavier vintage look than profile 4, great for gritty 70s/80s analog rips)<br>
-&nbsp;&nbsp;**Shift + 4** - High-Contrast Silhouette / Edge Out (Crushes midtones heavily to create high-drama shadow play)<br>
-&nbsp;&nbsp;**Shift + 5** - Muted Atmospheric Depths (A cold, desaturated blue tint suited for bleak winter or thriller scenes)<br>
-&nbsp;&nbsp;**Shift + 6** - Solarized Retro Psychedelia (A wild, experimental acid-trip look for music or surreal content)<br>
-&nbsp;&nbsp;**Shift + 7** - Sepia Antique Daguerreotype (Pushes an extreme historical photo/film aesthetic)<br>
-&nbsp;&nbsp;**Shift + 8** - Gothic Midnight Desat (A drained, moody look that strips the color down to a ghostly silver tint)<br>
-&nbsp;&nbsp;**Shift + 9** - Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)</details>
+- **Ctrl + 1** - Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)
+- **Ctrl + 2** - Vibrant Punch (Boosts dull, washed-out color grading)
+- **Ctrl + 3** - Midnight Dark Room (Tames blinding white backgrounds for late-night viewing)
+- **Ctrl + 4** - Warm Vintage Film (Gives digital transfers an aged, warm theatrical look)
+- **Ctrl + 5** - Monochrome Noir (A crisp, high-contrast black-and-white conversion)
+- **Ctrl + 6** - Cool Sci-Fi / Cyber (An inverted color scheme that acts as an emergency high-contrast dark mode)
+- **Ctrl + 7** - Faded Archive Correction (Neutralizes nasty green or magenta color casts in old video rips)
+- **Ctrl + 8** - Cinematic Crush (Deepens shadow details to hide background compression noise in dark scenes)
+- **Ctrl + 9** - Crisp High-Key (Brightens up dim, murky master recordings without completely blowing out highlights)
+- **Shift + 1** - Teal & Orange Blockbuster (Pushes a stylized modern Hollywood color grade)
+- **Shift + 2** - Deep Cyberpunk Neon (Enhances purples, blues, and electric tones)
+- **Shift + 3** - Aged 16mm Horror Grain/Warmth (Heavier vintage look than profile 4, great for gritty 70s/80s analog rips)
+- **Shift + 4** - High-Contrast Silhouette / Edge Out (Crushes midtones heavily to create high-drama shadow play)
+- **Shift + 5** - Muted Atmospheric Depths (A cold, desaturated blue tint suited for bleak winter or thriller scenes)
+- **Shift + 6** - Solarized Retro Psychedelia (A wild, experimental acid-trip look for music or surreal content)
+- **Shift + 7** - Sepia Antique Daguerreotype (Pushes an extreme historical photo/film aesthetic)
+- **Shift + 8** - Gothic Midnight Desat (A drained, moody look that strips the color down to a ghostly silver tint)
+- **Shift + 9** - Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)</details>
 
 # Supported streaming services
 - Adult Swim
