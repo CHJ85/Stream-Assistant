@@ -22,12 +22,12 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - Shift+Up / Shift+Down - Change saturation
  - Shift+Left / Shift+Right - Change contrast
  - R - Revert filters (brightness, contrast, hue, and saturation) back to normal
- - O - Toggle surround sound
+ - O - Toggle surround sound on/off
  - Shift+R - Toggle video recorder on/off (Saves automatically, does not work on DRM protected content)
  - Hold down X - Censorship bleep
  - E+Up / E+Down - Bass control
  - E+Left / E+Right - Vocal control
- - E+M - Toggle mono (useful if sound only comes out of one channel)
+ - E+M - Toggle mono on/off (useful if sound only comes out of one channel)
  - E (Single press) - Revert bass, vocal controls and mono/stereo switch
  - V - Volume normalizer (dynamic range compression)
  - Ctrl/Shift + 1-9 - Apply shaders (color grading and cosmetic texturing), Ctrl/Shift+0 to reset
