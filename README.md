@@ -40,7 +40,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **Ctrl + Up / Down** - Change brightness
 - **Shift + Up / Down** - Change saturation
 - **Shift + Left / Right** - Change contrast
-- **Hold H** - Hue color control (rainbow cycle)
+- **Hold down H** - Hue color control (rainbow cycle)
 - **R** - Revert all filters (hue, contrast, saturation, brightness) to normal
 - **Shift + R** - Toggle video recorder (Does not work with DRM protected content)
 - **Ctrl/Shift + 1-9** - Apply soft shader profiles (use **Ctrl/Shift + 0** to reset)
