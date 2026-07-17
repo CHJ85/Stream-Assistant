@@ -18,11 +18,12 @@ NOTE: YouTube support has now been removed from this project and replace by [You
  - A - Change aspect ratio (zoom / stretch / normal)
  - B - Cycle through video filters: black & white, sepia and invert colors
  - Ctrl+Up / Ctrl+Down - Change brightness
- - Ctrl+Left / Ctrl+Right or hold down H - Hue color control (does not override YouTube's chepter skip feature)
+ - Hold down H - Hue color control (Cycle through the rainbow)
  - Shift+Up / Shift+Down - Change saturation
  - Shift+Left / Shift+Right - Change contrast
  - R - Revert filters (brightness, contrast, hue, and saturation) back to normal
  - O - Toggle surround sound
+ - Shift+R - Toggle video recorder on/off (Saves automatically, does not work on DRM protected content)
  - Hold down X - Censorship bleep
  - E+Up / E+Down - Bass control
  - E+Left / E+Right - Vocal control
