@@ -111,7 +111,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 
 # Installation
 1. Install a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).<br>
-2. Install the [script](https://github.com/chj85/Stream-Assistant/raw/main/main.user.js)
+2. Install the [script](https://github.com/CHJ85/Stream-Assistant/raw/main/main.user.js)
 
 # Ad blocking
 This script does not block in-house ads such as self-promotion.<br>
