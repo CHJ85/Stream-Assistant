@@ -43,9 +43,8 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **Hold down H** - Hue color control (rainbow cycle)
 - **R** - Revert all filters (hue, contrast, saturation, brightness) to normal
 - **Shift + R** - Toggle video recorder (Does not work with DRM protected content)
-- **Ctrl/Shift + 1-9** - Apply soft shader profiles (use **Ctrl/Shift + 0** to reset)
- <details>
-  <summary>&nbsp;&nbsp;Click to see the list of all available shader profiles</summary>
+
+**Visual Filter Presets** (Color grading profiles and display enhancement modes)
 - **Ctrl + 1** - Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)
 - **Ctrl + 2** - Vibrant Punch (Boosts dull, washed-out color grading)
 - **Ctrl + 3** - Midnight Dark Room (Tames blinding white backgrounds for late-night viewing)
@@ -63,7 +62,8 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **Shift + 6** - Solarized Retro Psychedelia (A wild, experimental acid-trip look for music or surreal content)
 - **Shift + 7** - Sepia Antique Daguerreotype (Pushes an extreme historical photo/film aesthetic)
 - **Shift + 8** - Gothic Midnight Desat (A drained, moody look that strips the color down to a ghostly silver tint)
-- **Shift + 9** - Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)</details>
+- **Shift + 9** - Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)
+- **Ctrl + 0** or **Shift + 0** - Revert back to normal
 
 # Supported streaming services
 - Adult Swim
