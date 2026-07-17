@@ -84,7 +84,7 @@
     let fastSeek = false;
     let aspectRatioOption = 0;
     let isEPressed = false;
-    let eKeyUsedAsModifier = false; 
+    let eKeyUsedAsModifier = false;
     let videoScale = 1.0;
 
     const filters = {
@@ -116,8 +116,8 @@
     let animationFrameId = null;
     let vizData = {
         time: 0,
-        stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
-        matrixDrops: Array(100).fill(0)
+ stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
+ matrixDrops: Array(100).fill(0)
     };
 
     // --- Helper Functions ---
@@ -384,11 +384,11 @@
             }
 
             video = newVideo;
-            videoScale = 1.0; 
+            videoScale = 1.0;
             fastSeek = typeof video.fastSeek === 'function';
             applyFilters();
             setupVisualizerCanvas();
-            setupZoomListener(); 
+            setupZoomListener();
             setupAudioForVideo(video);
         }
     }
@@ -418,6 +418,7 @@
     }
     function adjustPlaybackSpeed(direction) {
         if (video) {
+            // Stop any active spacebar or mouse hold-to-speed loops immediately
             clearTimeout(spacebarTimer);
             clearInterval(enforceSpeedInterval);
             spacebarSpeedUp = false;
@@ -493,8 +494,8 @@
     function isVideoCorsSafe(vid) {
         if (!vid) return false;
         const src = vid.currentSrc || vid.src;
-        if (!src) return true; 
-        
+        if (!src) return true;
+
         try {
             const url = new URL(src, window.location.href);
             if (url.origin === window.location.origin || url.protocol === 'blob:' || url.protocol === 'data:') {
@@ -647,13 +648,13 @@
     }
 
     function resetEQ() {
-        if (!audioContextData) return; 
+        if (!audioContextData) return;
 
         audioContextData.bassFilter.gain.value = 0;
         audioContextData.vocalFilter.gain.value = 0;
 
         if (audioContextData.monoActive) {
-            toggleMono(); 
+            toggleMono();
         }
     }
 
@@ -678,12 +679,12 @@
         filters.brightness = 1.0; filters.hue = 0; filters.saturation = 1.0; filters.contrast = 1.0; filters.special = 'none'; filters.profile = null; applyFilters();
     }
 
-    function toggleEqualizer() { 
-        if (!video) return; 
-        initAudioGraph(); 
+    function toggleEqualizer() {
+        if (!video) return;
+        initAudioGraph();
         const { context, surroundDryGain, surroundWetGain } = audioContextData;
-        audioContextData.eqActive = !audioContextData.eqActive; 
-        
+        audioContextData.eqActive = !audioContextData.eqActive;
+
         const now = context.currentTime;
         surroundDryGain.gain.cancelScheduledValues(now);
         surroundWetGain.gain.cancelScheduledValues(now);
@@ -696,13 +697,13 @@
             surroundDryGain.gain.setTargetAtTime(1, now, 0.015);
         }
     }
-    
-    function toggleCompressor() { 
-        if (!video) return; 
-        initAudioGraph(); 
+
+    function toggleCompressor() {
+        if (!video) return;
+        initAudioGraph();
         const { context, compDryGain, compWetGain } = audioContextData;
-        audioContextData.compActive = !audioContextData.compActive; 
-        
+        audioContextData.compActive = !audioContextData.compActive;
+
         const now = context.currentTime;
         compDryGain.gain.cancelScheduledValues(now);
         compWetGain.gain.cancelScheduledValues(now);
@@ -721,7 +722,7 @@
         initAudioGraph();
         const { context, monoDryGain, monoWetGain } = audioContextData;
         audioContextData.monoActive = !audioContextData.monoActive;
-        
+
         const now = context.currentTime;
         monoDryGain.gain.cancelScheduledValues(now);
         monoWetGain.gain.cancelScheduledValues(now);
@@ -984,7 +985,7 @@
             });
             if (shouldRemoveAds) removeAds();
         });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
