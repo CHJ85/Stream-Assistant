@@ -113,4 +113,4 @@ This script does not block in-house ads such as self-promotion.<br>
 And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
 
 # Support
-Having technical issues or feature requests, please open an Issue.
+If you're having technical issues or feature requests, please open an Issue.
