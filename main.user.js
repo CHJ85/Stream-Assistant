@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.0.4
+// @version      3.0.5
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -135,8 +135,8 @@
     let animationFrameId = null;
     let vizData = {
         time: 0,
-        stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
-        matrixDrops: Array(100).fill(0)
+ stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
+ matrixDrops: Array(100).fill(0)
     };
 
     // --- Helper Functions ---
@@ -161,10 +161,10 @@
     function getSupportedMimeType() {
         const preferredTypes = [
             'video/webm; codecs=vp9,opus',
-            'video/webm; codecs=vp8,opus',
-            'video/webm',
-            'video/mp4; codecs=h264,aac',
-            'video/mp4'
+ 'video/webm; codecs=vp8,opus',
+ 'video/webm',
+ 'video/mp4; codecs=h264,aac',
+ 'video/mp4'
         ];
 
         for (const mimeType of preferredTypes) {
@@ -179,35 +179,35 @@
         if (!recordingIndicator) {
             recordingIndicator = document.createElement('div');
             recordingIndicator.innerHTML = `
-                <span>REC</span>
-                <span style="font-size: 20px; filter: drop-shadow(0 0 10px red);">🔴</span>
+            <span>REC</span>
+            <span style="font-size: 20px; filter: drop-shadow(0 0 10px red);">🔴</span>
             `;
 
             recordingIndicator.style.cssText = `
-                position: absolute;
-                top: 30px;
-                right: 40px;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                z-index: 2147483647;
-                pointer-events: none;
-                color: red;
-                font-family: 'Courier New', Courier, monospace;
-                font-size: 26px;
-                font-weight: bold;
-                text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px red;
-                animation: streamAssistantRecordBlink 1s step-start infinite;
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 2147483647;
+            pointer-events: none;
+            color: red;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 26px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px red;
+            animation: streamAssistantRecordBlink 1s step-start infinite;
             `;
 
             if (!document.getElementById('streamAssistantBlinkStyles')) {
                 const style = document.createElement('style');
                 style.id = 'streamAssistantBlinkStyles';
                 style.innerHTML = `
-                    @keyframes streamAssistantRecordBlink {
-                        0%, 100% { opacity: 1; }
-                        50% { opacity: 0; }
-                    }
+                @keyframes streamAssistantRecordBlink {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0; }
+                }
                 `;
                 document.head.appendChild(style);
             }
@@ -1130,7 +1130,7 @@
             });
             if (shouldRemoveAds) removeAds();
         });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1138,4 +1138,31 @@
         removeAds();
         initHostBlocker();
     });
+
+    // --- Front-load Audio API on Webpage/Video Load ---
+    const initAudioOnLoad = () => {
+        // The moment a video element exists but the API isn't enabled yet
+        if (!audioContextData && document.querySelector('video')) {
+            loadVideo(); 
+            initAudioGraph(); // Force the API to enable and absorb the stutter immediately
+        }
+    };
+    
+    // 1. Try immediately on webpage load
+    initAudioOnLoad();
+    
+    // 2. Watch the webpage constantly. If a streaming site dynamically injects a video, catch it instantly.
+    const videoObserver = new MutationObserver(() => initAudioOnLoad());
+    videoObserver.observe(document.body, { childList: true, subtree: true });
+    
+    // 3. Browsers mute background Audio APIs until you interact with the page. 
+    // This wakes the audio up smoothly on your first click or keypress.
+    const wakeUpAudio = () => {
+        if (audioContextData && audioContextData.context.state === 'suspended') {
+            audioContextData.context.resume().catch(() => {});
+        }
+    };
+    
+    document.addEventListener('click', wakeUpAudio, { capture: true });
+    document.addEventListener('keydown', wakeUpAudio, { capture: true });
 })();
