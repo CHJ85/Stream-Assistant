@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.0.1
+// @version      3.0.2
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, and visualizers.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -84,7 +84,7 @@
     let fastSeek = false;
     let aspectRatioOption = 0;
     let isEPressed = false;
-    let eKeyUsedAsModifier = false; // Tracks if E was held to press arrows/digits
+    let eKeyUsedAsModifier = false; 
     let videoScale = 1.0;
 
     const filters = {
@@ -116,8 +116,8 @@
     let animationFrameId = null;
     let vizData = {
         time: 0,
- stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
- matrixDrops: Array(100).fill(0)
+        stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
+        matrixDrops: Array(100).fill(0)
     };
 
     // --- Helper Functions ---
@@ -128,7 +128,6 @@
         if (filters.profile) {
             video.style.filter = filters.profile;
         } else {
-            // If filters are untouched, remove the style entirely to preserve hardware video acceleration
             const isDefault = filters.brightness === 1.0 && filters.hue === 0 && filters.saturation === 1.0 && filters.contrast === 1.0 && filters.special === 'none';
             if (isDefault) {
                 video.style.filter = '';
@@ -146,21 +145,28 @@
     document.addEventListener('mouseup', handleMouseUp, true);
     window.addEventListener('blur', () => { isEPressed = false; });
 
+    const resumeOnGesture = () => {
+        if (audioContextData && audioContextData.context && audioContextData.context.state === 'suspended') {
+            audioContextData.context.resume().catch(() => {});
+        }
+    };
+    document.addEventListener('click', resumeOnGesture, { capture: true, passive: true });
+    document.addEventListener('keydown', resumeOnGesture, { capture: true, passive: true });
+    document.addEventListener('mousedown', resumeOnGesture, { capture: true, passive: true });
+
     function handleKeyDown(e) {
         const targetTagName = e.target.tagName ? e.target.tagName.toLowerCase() : '';
         const isInputField = ['input', 'textarea'].includes(targetTagName) || e.target.isContentEditable;
 
         if (isInputField) return;
 
-        // --- Let native video player override Ctrl + Left/Right ---
         if (e.ctrlKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
             return;
         }
 
-        // Track custom E modifier
         if (e.key.toLowerCase() === 'e') {
             isEPressed = true;
-            eKeyUsedAsModifier = false; // Reset on initial downpress
+            eKeyUsedAsModifier = false;
         }
 
         // --- Censor Bleep (X Key) ---
@@ -169,7 +175,8 @@
             initAudioGraph();
             if (audioContextData) {
                 const now = audioContextData.context.currentTime;
-                // Quick 15ms crossfade to avoid popping
+                audioContextData.bleepGain.gain.cancelScheduledValues(now);
+                audioContextData.videoGain.gain.cancelScheduledValues(now);
                 audioContextData.bleepGain.gain.setTargetAtTime(0.15, now, 0.015);
                 audioContextData.videoGain.gain.setTargetAtTime(0, now, 0.015);
             }
@@ -204,9 +211,7 @@
             return;
         }
 
-        // --- Visualizer & EQ Hotkeys (E + Modifiers) ---
         if (isEPressed) {
-            // E + M: Stereo to Mono Downmix
             if (e.key.toLowerCase() === 'm') {
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -224,31 +229,22 @@
                 return;
             }
 
-            // Bass and Vocal EQ Mapping
             if (e.key === 'ArrowUp') { e.preventDefault(); adjustEQ('bass', config.eqStepDb); eKeyUsedAsModifier = true; return; }
             if (e.key === 'ArrowDown') { e.preventDefault(); adjustEQ('bass', -config.eqStepDb); eKeyUsedAsModifier = true; return; }
             if (e.key === 'ArrowRight') { e.preventDefault(); adjustEQ('vocal', config.eqStepDb); eKeyUsedAsModifier = true; return; }
             if (e.key === 'ArrowLeft') { e.preventDefault(); adjustEQ('vocal', -config.eqStepDb); eKeyUsedAsModifier = true; return; }
         }
         else if (e.ctrlKey || e.shiftKey) {
-            // Keyboard Zoom (Shift + Plus / Shift + Minus)
             if (e.shiftKey && (e.key === '+' || e.key === '=' || e.code === 'NumpadAdd')) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                adjustZoomKeyboard(1);
-                return;
+                e.preventDefault(); e.stopImmediatePropagation(); adjustZoomKeyboard(1); return;
             }
             if (e.shiftKey && (e.key === '_' || e.key === '-' || e.code === 'NumpadSubtract')) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
-                adjustZoomKeyboard(-1);
-                return;
+                e.preventDefault(); e.stopImmediatePropagation(); adjustZoomKeyboard(-1); return;
             }
 
             const digitMatch = e.code && e.code.match(/^(?:Digit|Numpad)(\d)$/);
             if (digitMatch) {
-                e.preventDefault();
-                e.stopImmediatePropagation();
+                e.preventDefault(); e.stopImmediatePropagation();
                 const digit = parseInt(digitMatch[1]);
                 applyProfile(e.ctrlKey ? digit : digit + 10);
                 return;
@@ -281,8 +277,8 @@
                 case '<': case '-': adjustPlaybackSpeed(-1); break;
                 case '>': case '+': adjustPlaybackSpeed(1); break;
                 case 'a': toggleAspectRatio(); break;
-                case 'o': toggleEqualizer(); break;
-                case 'v': toggleCompressor(); break;
+                case 'o': toggleEqualizer(); break; // Toggles Surround Sound
+                case 'v': toggleCompressor(); break; // Toggles Compressor
                 case 'b': toggleBlackAndWhite(); break;
                 case 'i': skipIntro(); break;
                 case 'h': adjustFilter('hue', config.hueStep); break;
@@ -300,7 +296,6 @@
 
     function handleKeyUp(e) {
         if (e.key.toLowerCase() === 'e') {
-            // If E is released and was NOT used for any modifiers, reset the EQ and Mono.
             if (isEPressed && !eKeyUsedAsModifier) {
                 resetEQ();
             }
@@ -311,6 +306,8 @@
         if (e.key.toLowerCase() === 'x') {
             if (audioContextData) {
                 const now = audioContextData.context.currentTime;
+                audioContextData.bleepGain.gain.cancelScheduledValues(now);
+                audioContextData.videoGain.gain.cancelScheduledValues(now);
                 audioContextData.bleepGain.gain.setTargetAtTime(0, now, 0.015);
                 audioContextData.videoGain.gain.setTargetAtTime(1, now, 0.015);
             }
@@ -381,12 +378,18 @@
         else newVideo = document.querySelector('video');
 
         if (newVideo && newVideo !== video) {
+            if (audioContextData) {
+                try { audioContextData.context.close(); } catch (e) {}
+                audioContextData = null;
+            }
+
             video = newVideo;
-            videoScale = 1.0; // Reset scale when target changes
+            videoScale = 1.0; 
             fastSeek = typeof video.fastSeek === 'function';
             applyFilters();
             setupVisualizerCanvas();
-            setupZoomListener(); // Safely bind mousewheel zoom
+            setupZoomListener(); 
+            setupAudioForVideo(video);
         }
     }
 
@@ -415,7 +418,6 @@
     }
     function adjustPlaybackSpeed(direction) {
         if (video) {
-            // Stop any active spacebar or mouse hold-to-speed loops immediately
             clearTimeout(spacebarTimer);
             clearInterval(enforceSpeedInterval);
             spacebarSpeedUp = false;
@@ -449,7 +451,6 @@
             if (!e.shiftKey) return;
             e.preventDefault();
 
-            // Only apply layout constraints when actively zooming to prevent UI bugs on YouTube
             if (video.parentNode && video.parentNode.style) {
                 video.parentNode.style.overflow = 'hidden';
             }
@@ -475,7 +476,6 @@
     function adjustZoomKeyboard(direction) {
         if (!video) return;
 
-        // Only apply layout constraints when actively zooming
         if (video.parentNode && video.parentNode.style) {
             video.parentNode.style.overflow = 'hidden';
         }
@@ -489,115 +489,148 @@
         video.style.transform = `scale(${videoScale})`;
     }
 
-    // --- Unified Audio Graph & EQ Management ---
+    // --- CORS Audio Graph Safety ---
+    function isVideoCorsSafe(vid) {
+        if (!vid) return false;
+        const src = vid.currentSrc || vid.src;
+        if (!src) return true; 
+        
+        try {
+            const url = new URL(src, window.location.href);
+            if (url.origin === window.location.origin || url.protocol === 'blob:' || url.protocol === 'data:') {
+                return true;
+            }
+            if (vid.crossOrigin === 'anonymous' || vid.crossOrigin === 'use-credentials') {
+                return true;
+            }
+            return false;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function setupAudioForVideo(vid) {
+        if (!vid) return;
+
+        const initIfSafe = () => {
+            if (isVideoCorsSafe(vid)) {
+                initAudioGraph();
+            } else {
+                console.warn("Stream Assistant: Audio capture skipped to prevent permanent cross-origin muting.");
+            }
+        };
+
+        initIfSafe();
+        vid.addEventListener('loadedmetadata', initIfSafe, { once: true });
+        vid.addEventListener('play', initIfSafe, { once: true });
+    }
+
+    // --- Unified Static Audio Graph & EQ Management ---
     function initAudioGraph() {
         if (!video) loadVideo();
+        if (!video) return;
+
         if (audioContextData) {
             if (audioContextData.context.state === 'suspended') {
-                audioContextData.context.resume();
+                audioContextData.context.resume().catch(() => {});
             }
             return;
         }
 
         const context = new (window.AudioContext || window.webkitAudioContext)();
         if (context.state === 'suspended') {
-            context.resume();
+            context.resume().catch(() => {});
         }
 
         const source = context.createMediaElementSource(video);
 
-        // Censor Switch Nodes
-        const videoGain = context.createGain();
-        videoGain.gain.value = 1;
-
-        const bleepGain = context.createGain();
-        bleepGain.gain.value = 0;
-
+        // --- Censor Block ---
+        const videoGain = context.createGain(); videoGain.gain.value = 1;
+        const bleepGain = context.createGain(); bleepGain.gain.value = 0;
         const bleepOsc = context.createOscillator();
-        bleepOsc.type = 'sine';
-        bleepOsc.frequency.value = 1000;
+        bleepOsc.type = 'sine'; bleepOsc.frequency.value = 1000;
         bleepOsc.connect(bleepGain);
         bleepGain.connect(context.destination);
         bleepOsc.start();
 
-        // User EQ Nodes (Bass & Vocals)
+        // --- Active EQ Filters ---
         const bassFilter = context.createBiquadFilter();
-        bassFilter.type = 'lowshelf';
-        bassFilter.frequency.value = 100;
-        bassFilter.gain.value = 0;
+        bassFilter.type = 'lowshelf'; bassFilter.frequency.value = 100; bassFilter.gain.value = 0;
 
         const vocalFilter = context.createBiquadFilter();
-        vocalFilter.type = 'peaking';
-        vocalFilter.frequency.value = 1500;
-        vocalFilter.Q.value = 1.0;
-        vocalFilter.gain.value = 0;
+        vocalFilter.type = 'peaking'; vocalFilter.frequency.value = 1500; vocalFilter.Q.value = 1.0; vocalFilter.gain.value = 0;
 
-        // Stereo to Mono Downmix Node
+        // --- Mono Mix Block ---
+        const monoDryGain = context.createGain(); monoDryGain.gain.value = 1;
+        const monoWetGain = context.createGain(); monoWetGain.gain.value = 0;
         const monoNode = context.createGain();
-        monoNode.channelCount = 1; // Forces the API to sum left and right
-        monoNode.channelCountMode = 'explicit';
-        monoNode.channelInterpretation = 'speakers';
+        monoNode.channelCount = 1; monoNode.channelCountMode = 'explicit'; monoNode.channelInterpretation = 'speakers';
+        const monoMixer = context.createGain(); monoMixer.gain.value = 1;
 
-        // General Enhancers (Spatial/Compression)
-        const analyser = context.createAnalyser();
-        analyser.fftSize = 1024;
-        analyser.smoothingTimeConstant = 0.85;
-
+        // --- Surround / Spatial Block ---
+        const surroundDryGain = context.createGain(); surroundDryGain.gain.value = 1;
+        const surroundWetGain = context.createGain(); surroundWetGain.gain.value = 0;
         const splitter = context.createChannelSplitter(2);
         const merger = context.createChannelMerger(2);
-        const leftDelay = context.createDelay();
-        const rightDelay = context.createDelay();
-        leftDelay.delayTime.value = 0;
-        rightDelay.delayTime.value = 0.01;
-
+        const leftDelay = context.createDelay(); leftDelay.delayTime.value = 0;
+        const rightDelay = context.createDelay(); rightDelay.delayTime.value = 0.01;
         splitter.connect(leftDelay, 0); splitter.connect(rightDelay, 1);
         leftDelay.connect(merger, 0, 0); rightDelay.connect(merger, 0, 1);
+        const surroundMixer = context.createGain(); surroundMixer.gain.value = 1;
 
+        // --- Compressor Block ---
+        const compDryGain = context.createGain(); compDryGain.gain.value = 1;
+        const compWetGain = context.createGain(); compWetGain.gain.value = 0;
         const compressor = context.createDynamicsCompressor();
         compressor.threshold.setValueAtTime(-24, context.currentTime);
         compressor.knee.setValueAtTime(30, context.currentTime);
         compressor.ratio.setValueAtTime(4, context.currentTime);
         compressor.attack.setValueAtTime(0.003, context.currentTime);
         compressor.release.setValueAtTime(0.25, context.currentTime);
+        const compMixer = context.createGain(); compMixer.gain.value = 1;
 
-        audioContextData = {
-            context, source, analyser, splitter, merger, compressor,
- videoGain, bleepGain, bassFilter, vocalFilter, monoNode,
- eqActive: false, compActive: false, monoActive: false
-        };
-        updateAudioRouting();
-    }
+        // --- Analyser ---
+        const analyser = context.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.85;
 
-    function updateAudioRouting() {
-        if (!audioContextData) return;
-        const { context, source, analyser, splitter, merger, compressor, videoGain, bassFilter, vocalFilter, monoNode, eqActive, compActive, monoActive } = audioContextData;
-
-        // Safely disconnect everything to rebuild the chain
-        try { source.disconnect(); } catch (e) {}
-        try { bassFilter.disconnect(); } catch (e) {}
-        try { vocalFilter.disconnect(); } catch (e) {}
-        try { monoNode.disconnect(); } catch (e) {}
-        try { merger.disconnect(); } catch (e) {}
-        try { compressor.disconnect(); } catch (e) {}
-        try { videoGain.disconnect(); } catch (e) {}
-        try { analyser.disconnect(); } catch (e) {}
-
-        let currentNode = source;
-
-        // Base EQ Routing
-        currentNode.connect(bassFilter);
+        // --- STATIC ROUTING CHAIN ---
+        // 1. Source -> Bass -> Vocal
+        source.connect(bassFilter);
         bassFilter.connect(vocalFilter);
-        currentNode = vocalFilter;
 
-        // Advanced Options
-        if (monoActive) { currentNode.connect(monoNode); currentNode = monoNode; }
-        if (eqActive) { currentNode.connect(splitter); currentNode = merger; }
-        if (compActive) { currentNode.connect(compressor); currentNode = compressor; }
+        // 2. Vocal -> Mono Block
+        vocalFilter.connect(monoDryGain);
+        vocalFilter.connect(monoWetGain);
+        monoWetGain.connect(monoNode);
+        monoDryGain.connect(monoMixer);
+        monoNode.connect(monoMixer);
 
-        // Final routing to speakers & visualizer
-        currentNode.connect(videoGain);
+        // 3. Mono Block -> Surround Block
+        monoMixer.connect(surroundDryGain);
+        monoMixer.connect(surroundWetGain);
+        surroundWetGain.connect(splitter);
+        surroundDryGain.connect(surroundMixer);
+        merger.connect(surroundMixer);
+
+        // 4. Surround Block -> Compressor Block
+        surroundMixer.connect(compDryGain);
+        surroundMixer.connect(compWetGain);
+        compWetGain.connect(compressor);
+        compDryGain.connect(compMixer);
+        compressor.connect(compMixer);
+
+        // 5. Compressor Block -> Video Censor Gain -> Analyser -> Destination
+        compMixer.connect(videoGain);
         videoGain.connect(analyser);
         analyser.connect(context.destination);
+
+        audioContextData = {
+            context, source, analyser, compressor,
+            videoGain, bleepGain, bassFilter, vocalFilter,
+            monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
+            eqActive: false, compActive: false, monoActive: false
+        };
     }
 
     function adjustEQ(type, amount) {
@@ -613,16 +646,14 @@
         }
     }
 
-    // Instantly resets both custom EQ parameters and Mono toggle
     function resetEQ() {
-        if (!audioContextData) return; // Prevent initializing the audio graph just to reset nothing
+        if (!audioContextData) return; 
 
         audioContextData.bassFilter.gain.value = 0;
         audioContextData.vocalFilter.gain.value = 0;
 
         if (audioContextData.monoActive) {
-            audioContextData.monoActive = false;
-            updateAudioRouting();
+            toggleMono(); 
         }
     }
 
@@ -647,29 +678,79 @@
         filters.brightness = 1.0; filters.hue = 0; filters.saturation = 1.0; filters.contrast = 1.0; filters.special = 'none'; filters.profile = null; applyFilters();
     }
 
-    function toggleEqualizer() { if (!video) return; initAudioGraph(); audioContextData.eqActive = !audioContextData.eqActive; updateAudioRouting(); }
-    function toggleCompressor() { if (!video) return; initAudioGraph(); audioContextData.compActive = !audioContextData.compActive; updateAudioRouting(); }
+    function toggleEqualizer() { 
+        if (!video) return; 
+        initAudioGraph(); 
+        const { context, surroundDryGain, surroundWetGain } = audioContextData;
+        audioContextData.eqActive = !audioContextData.eqActive; 
+        
+        const now = context.currentTime;
+        surroundDryGain.gain.cancelScheduledValues(now);
+        surroundWetGain.gain.cancelScheduledValues(now);
+
+        if (audioContextData.eqActive) {
+            surroundWetGain.gain.setTargetAtTime(1, now, 0.015);
+            surroundDryGain.gain.setTargetAtTime(0, now, 0.015);
+        } else {
+            surroundWetGain.gain.setTargetAtTime(0, now, 0.015);
+            surroundDryGain.gain.setTargetAtTime(1, now, 0.015);
+        }
+    }
+    
+    function toggleCompressor() { 
+        if (!video) return; 
+        initAudioGraph(); 
+        const { context, compDryGain, compWetGain } = audioContextData;
+        audioContextData.compActive = !audioContextData.compActive; 
+        
+        const now = context.currentTime;
+        compDryGain.gain.cancelScheduledValues(now);
+        compWetGain.gain.cancelScheduledValues(now);
+
+        if (audioContextData.compActive) {
+            compWetGain.gain.setTargetAtTime(1, now, 0.015);
+            compDryGain.gain.setTargetAtTime(0, now, 0.015);
+        } else {
+            compWetGain.gain.setTargetAtTime(0, now, 0.015);
+            compDryGain.gain.setTargetAtTime(1, now, 0.015);
+        }
+    }
 
     function toggleMono() {
         if (!video) return;
         initAudioGraph();
+        const { context, monoDryGain, monoWetGain } = audioContextData;
         audioContextData.monoActive = !audioContextData.monoActive;
-        updateAudioRouting();
+        
+        const now = context.currentTime;
+        monoDryGain.gain.cancelScheduledValues(now);
+        monoWetGain.gain.cancelScheduledValues(now);
+
+        if (audioContextData.monoActive) {
+            monoWetGain.gain.setTargetAtTime(1, now, 0.015);
+            monoDryGain.gain.setTargetAtTime(0, now, 0.015);
+        } else {
+            monoWetGain.gain.setTargetAtTime(0, now, 0.015);
+            monoDryGain.gain.setTargetAtTime(1, now, 0.015);
+        }
     }
 
     // --- Visualizer Setup & Render Loop ---
     function setupVisualizerCanvas() {
-        if (visCanvas) return;
-        visCanvas = document.createElement('canvas');
-        visCtx = visCanvas.getContext('2d', { alpha: true });
-        visCanvas.style.cssText = `
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        pointer-events: none; z-index: 9999; display: block;
-        `;
-        if (video && video.parentNode) {
+        if (!visCanvas) {
+            visCanvas = document.createElement('canvas');
+            visCtx = visCanvas.getContext('2d', { alpha: true });
+            visCanvas.style.cssText = `
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999; display: block;
+            `;
+        }
+
+        if (video && video.parentNode && visCanvas.parentNode !== video.parentNode) {
             video.parentNode.style.position = video.parentNode.style.position || 'relative';
             video.parentNode.appendChild(visCanvas);
         }
+
         if (!animationFrameId) renderVisualizer();
     }
 
@@ -903,7 +984,7 @@
             });
             if (shouldRemoveAds) removeAds();
         });
-            observer.observe(document.documentElement, { childList: true, subtree: true });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
