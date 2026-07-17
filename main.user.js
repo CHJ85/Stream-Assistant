@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.0.3
-// @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw video recording.
+// @version      3.0.4
+// @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
 // @match        https://play.hbomax.com/*
@@ -114,6 +114,19 @@
     let recordedChunks = [];
     let isRecording = false;
     let recordingIndicator = null;
+    let activeVideoForRecordListeners = null;
+
+    function handleVideoPause() {
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            mediaRecorder.pause();
+        }
+    }
+
+    function handleVideoResume() {
+        if (mediaRecorder && mediaRecorder.state === 'paused') {
+            mediaRecorder.resume();
+        }
+    }
 
     // --- Visualizer State ---
     let visCanvas = null;
@@ -255,6 +268,12 @@
             isRecording = false;
             hideRecordingIndicator();
 
+            if (activeVideoForRecordListeners) {
+                activeVideoForRecordListeners.removeEventListener('pause', handleVideoPause);
+                activeVideoForRecordListeners.removeEventListener('play', handleVideoResume);
+                activeVideoForRecordListeners = null;
+            }
+
             const blob = new Blob(recordedChunks, { type: mimeType || 'video/webm' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -273,6 +292,10 @@
         mediaRecorder.start();
         isRecording = true;
         showRecordingIndicator();
+
+        video.addEventListener('pause', handleVideoPause);
+        video.addEventListener('play', handleVideoResume);
+        activeVideoForRecordListeners = video;
     }
 
     // --- Initialization & Event Listeners ---
@@ -656,7 +679,6 @@
             return;
         }
 
-        // Safety check to prevent permanent muting
         if (!isVideoCorsSafe(video)) {
             console.warn("Stream Assistant: Audio capture skipped to prevent permanent cross-origin muting.");
             return;
@@ -720,32 +742,27 @@
         analyser.smoothingTimeConstant = 0.85;
 
         // --- STATIC ROUTING CHAIN ---
-        // 1. Source -> Bass -> Vocal
         source.connect(bassFilter);
         bassFilter.connect(vocalFilter);
 
-        // 2. Vocal -> Mono Block
         vocalFilter.connect(monoDryGain);
         vocalFilter.connect(monoWetGain);
         monoWetGain.connect(monoNode);
         monoDryGain.connect(monoMixer);
         monoNode.connect(monoMixer);
 
-        // 3. Mono Block -> Surround Block
         monoMixer.connect(surroundDryGain);
         monoMixer.connect(surroundWetGain);
         surroundWetGain.connect(splitter);
         surroundDryGain.connect(surroundMixer);
         merger.connect(surroundMixer);
 
-        // 4. Surround Block -> Compressor Block
         surroundMixer.connect(compDryGain);
         surroundMixer.connect(compWetGain);
         compWetGain.connect(compressor);
         compDryGain.connect(compMixer);
         compressor.connect(compMixer);
 
-        // 5. Compressor Block -> Video Censor Gain -> Analyser -> Destination
         compMixer.connect(videoGain);
         videoGain.connect(analyser);
         analyser.connect(context.destination);
