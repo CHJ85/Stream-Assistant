@@ -55,7 +55,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 &nbsp;&nbsp;Shift+6: Solarized Retro Psychedelia (A wild, experimental acid-trip look for music or surreal content)<br>
 &nbsp;&nbsp;Shift+7: Sepia Antique Daguerreotype (Pushes an extreme historical photo/film aesthetic)<br>
 &nbsp;&nbsp;Shift+8: Gothic Midnight Desat (A drained, moody look that strips the color down to a ghostly silver tint)<br>
-&nbsp;&nbsp;Shift+9: Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)</details><br>
+&nbsp;&nbsp;Shift+9: Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)</details>
 # Supported streaming services
 - Adult Swim
 - Amazon Prime Video
