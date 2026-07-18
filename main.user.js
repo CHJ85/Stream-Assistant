@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.0.5
+// @version      3.0.6
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -493,19 +493,40 @@
 
     function handleMouseDown(e) {
         if (e.button !== 0) return;
+        
+        // --- ROBUST UI DETECTION ---
+        const isPlayerControl = e.target.closest(
+            '#volumeButton, ' + // Specific Tubi ID
+            '[role="slider"], ' + 
+            '[role="button"], ' + 
+            '[role="menuitem"], ' + 
+            'button, ' + 
+            'input[type="range"]'
+        );
+        
+        // Additionally, check if the clicked element has an aria-label,
+        // as this is a standard requirement for accessible video controls
+        const hasAriaLabel = e.target.hasAttribute('aria-label') || e.target.parentElement?.hasAttribute('aria-label');
+        
         const targetTag = e.target.tagName ? e.target.tagName.toLowerCase() : '';
-        if (['input', 'textarea', 'button', 'a', 'select'].includes(targetTag) || e.target.closest('button, a, .skip-button')) return;
-
-        mouseDownTime = Date.now();
+        
+        // If it's an input/button or identified as a control via roles/IDs, exit immediately
+        if (['input', 'textarea', 'button', 'a', 'select'].includes(targetTag) || 
+            isPlayerControl || 
+            hasAriaLabel) { 
+            return; 
+            }
+            
+            mouseDownTime = Date.now();
         isMouseHeldDown = true;
-
+        
         mouseHoldTimer = setTimeout(() => {
             if (isMouseHeldDown) {
                 loadVideo();
                 if (video) {
                     originalPlaybackSpeed = video.playbackRate || 1.0;
                     video.playbackRate = 2.0;
-
+                    
                     clearInterval(enforceSpeedInterval);
                     enforceSpeedInterval = setInterval(() => {
                         if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
@@ -1143,26 +1164,26 @@
     const initAudioOnLoad = () => {
         // The moment a video element exists but the API isn't enabled yet
         if (!audioContextData && document.querySelector('video')) {
-            loadVideo(); 
+            loadVideo();
             initAudioGraph(); // Force the API to enable and absorb the stutter immediately
         }
     };
-    
+
     // 1. Try immediately on webpage load
     initAudioOnLoad();
-    
+
     // 2. Watch the webpage constantly. If a streaming site dynamically injects a video, catch it instantly.
     const videoObserver = new MutationObserver(() => initAudioOnLoad());
     videoObserver.observe(document.body, { childList: true, subtree: true });
-    
-    // 3. Browsers mute background Audio APIs until you interact with the page. 
+
+    // 3. Browsers mute background Audio APIs until you interact with the page.
     // This wakes the audio up smoothly on your first click or keypress.
     const wakeUpAudio = () => {
         if (audioContextData && audioContextData.context.state === 'suspended') {
             audioContextData.context.resume().catch(() => {});
         }
     };
-    
+
     document.addEventListener('click', wakeUpAudio, { capture: true });
     document.addEventListener('keydown', wakeUpAudio, { capture: true });
 })();
