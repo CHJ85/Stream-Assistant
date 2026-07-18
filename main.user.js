@@ -144,16 +144,14 @@
 
     const applyFilters = () => {
         if (!video) return;
+        
         if (filters.profile) {
-            video.style.filter = filters.profile;
+            video.style.setProperty('filter', filters.profile, 'important');
         } else {
-            const isDefault = filters.brightness === 1.0 && filters.hue === 0 && filters.saturation === 1.0 && filters.contrast === 1.0 && filters.special === 'none';
-            if (isDefault) {
-                video.style.filter = '';
-            } else {
-                const baseFilters = `brightness(${filters.brightness}) hue-rotate(${filters.hue}deg) saturate(${filters.saturation}) contrast(${filters.contrast})`;
-                video.style.filter = filters.special !== 'none' ? `${baseFilters} ${filters.special}` : baseFilters;
-            }
+            const baseFilters = `brightness(${filters.brightness}) hue-rotate(${filters.hue}deg) saturate(${filters.saturation}) contrast(${filters.contrast})`;
+            const filterValue = filters.special !== 'none' ? `${baseFilters} ${filters.special}` : baseFilters;
+            
+            video.style.setProperty('filter', filterValue, 'important');
         }
     };
 
