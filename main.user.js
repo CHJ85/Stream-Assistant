@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.0.7
+// @version      3.0.9
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -144,13 +144,13 @@
 
     const applyFilters = () => {
         if (!video) return;
-        
+
         if (filters.profile) {
             video.style.setProperty('filter', filters.profile, 'important');
         } else {
             const baseFilters = `brightness(${filters.brightness}) hue-rotate(${filters.hue}deg) saturate(${filters.saturation}) contrast(${filters.contrast})`;
             const filterValue = filters.special !== 'none' ? `${baseFilters} ${filters.special}` : baseFilters;
-            
+
             video.style.setProperty('filter', filterValue, 'important');
         }
     };
@@ -1169,20 +1169,25 @@
     });
 
     // --- Front-load Audio API on Webpage/Video Load ---
-    const initAudioOnLoad = () => {
-        // The moment a video element exists but the API isn't enabled yet
-        if (!audioContextData && document.querySelector('video')) {
+    
+    // 1. Intercept video initialization before playback actually begins
+    // Using the capture phase (true) ensures we catch these events immediately, bypassing site UI blockers.
+    document.addEventListener('loadedmetadata', (e) => {
+        if (e.target && e.target.tagName === 'VIDEO') {
             loadVideo();
-            initAudioGraph(); // Force the API to enable and absorb the stutter immediately
+            initAudioGraph(); // Reroute the audio pipeline while the video is still buffering
         }
-    };
+    }, true);
 
-    // 1. Try immediately on webpage load
-    initAudioOnLoad();
-
-    // 2. Watch the webpage constantly. If a streaming site dynamically injects a video, catch it instantly.
-    const videoObserver = new MutationObserver(() => initAudioOnLoad());
-    videoObserver.observe(document.body, { childList: true, subtree: true });
+    document.addEventListener('play', (e) => {
+        if (e.target && e.target.tagName === 'VIDEO') {
+            // Secondary failsafe: If the video attempts to play, ensure the graph is hooked up
+            if (!audioContextData) {
+                loadVideo();
+                initAudioGraph(); 
+            }
+        }
+    }, true);
 
     // 3. Browsers mute background Audio APIs until you interact with the page.
     // This wakes the audio up smoothly on your first click or keypress.
