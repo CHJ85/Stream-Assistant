@@ -36,7 +36,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 **Visuals & Filters**
 - **+ / -** or **> / <** - Change playback speed
 - **A** - Change aspect ratio (zoom / stretch / normal)
-- **Shift + Mousewheel** - Zoom in/out (not in fullscreen)
+<span style="color:red">**BETA**</span> - **Shift + Mousewheel** - Zoom in/out (not in fullscreen, not all streaming services)
 - **B** - Cycle video filters (B&W, sepia, invert)
 - **Ctrl + Up / Down** - Change brightness
 - **Shift + Up / Down** - Change saturation
