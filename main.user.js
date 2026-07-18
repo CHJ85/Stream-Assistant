@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.0.6
+// @version      3.0.7
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -493,40 +493,40 @@
 
     function handleMouseDown(e) {
         if (e.button !== 0) return;
-        
+
         // --- ROBUST UI DETECTION ---
         const isPlayerControl = e.target.closest(
             '#volumeButton, ' + // Specific Tubi ID
-            '[role="slider"], ' + 
-            '[role="button"], ' + 
-            '[role="menuitem"], ' + 
-            'button, ' + 
+            '[role="slider"], ' +
+            '[role="button"], ' +
+            '[role="menuitem"], ' +
+            'button, ' +
             'input[type="range"]'
         );
-        
+
         // Additionally, check if the clicked element has an aria-label,
         // as this is a standard requirement for accessible video controls
         const hasAriaLabel = e.target.hasAttribute('aria-label') || e.target.parentElement?.hasAttribute('aria-label');
-        
+
         const targetTag = e.target.tagName ? e.target.tagName.toLowerCase() : '';
-        
+
         // If it's an input/button or identified as a control via roles/IDs, exit immediately
-        if (['input', 'textarea', 'button', 'a', 'select'].includes(targetTag) || 
-            isPlayerControl || 
-            hasAriaLabel) { 
-            return; 
+        if (['input', 'textarea', 'button', 'a', 'select'].includes(targetTag) ||
+            isPlayerControl ||
+            hasAriaLabel) {
+            return;
             }
-            
+
             mouseDownTime = Date.now();
         isMouseHeldDown = true;
-        
+
         mouseHoldTimer = setTimeout(() => {
             if (isMouseHeldDown) {
                 loadVideo();
                 if (video) {
                     originalPlaybackSpeed = video.playbackRate || 1.0;
                     video.playbackRate = 2.0;
-                    
+
                     clearInterval(enforceSpeedInterval);
                     enforceSpeedInterval = setInterval(() => {
                         if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
@@ -623,23 +623,33 @@
             if (!e.shiftKey) return;
             e.preventDefault();
 
-            if (video.parentNode && video.parentNode.style) {
-                video.parentNode.style.overflow = 'hidden';
-            }
+            // PERFORMANCE & STABILITY
+            // Ensure the browser knows this element will be transformed
+            video.style.willChange = 'transform';
 
+            // Calculate mouse position relative to video to keep zoom centered on mouse
             const rect = video.getBoundingClientRect();
             const x = ((e.clientX - rect.left) / rect.width) * 100;
             const y = ((e.clientY - rect.top) / rect.height) * 100;
 
             video.style.transformOrigin = `${x}% ${y}%`;
 
+            // Update scale
             if (e.deltaY < 0) {
                 videoScale = Math.min(videoScale + config.zoomStep, config.zoomMax);
             } else {
                 videoScale = Math.max(videoScale - config.zoomStep, config.zoomMin);
             }
 
-            video.style.transform = `scale(${videoScale})`;
+            // CLEANUP: If we return to base zoom, remove the transform entirely
+            // This prevents the "black out" caused by lingering empty transforms
+            if (videoScale <= 1.0) {
+                videoScale = 1.0;
+                video.style.transform = '';
+                video.style.transformOrigin = '';
+            } else {
+                video.style.transform = `scale(${videoScale})`;
+            }
         }, { passive: false });
 
         video.dataset.zoomBound = "true";
