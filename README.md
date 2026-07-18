@@ -6,7 +6,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 
 # Features
 - Playback Control: Full hotkey support for seeking, speed, and navigation.
-- Visual Enhancements: Aspect ratio control and custom color/brightness filters.
+- Visual Enhancements: Aspect ratio control, zoom control and custom color/brightness filters.
 - Advanced Audio: EQ (Bass/Vocal), Mono/Stereo switching, and dynamic range compression.
 - Recording: Raw video recording (browser-based, auto-pausing).
 - Ad Blocking: Integrated host-based blocking for uninterrupted viewing.
@@ -36,6 +36,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 **Visuals & Filters**
 - **+ / -** or **> / <** - Change playback speed
 - **A** - Change aspect ratio (zoom / stretch / normal)
+- **Shift + Mousewheel** - Zoom in/out
 - **B** - Cycle video filters (B&W, sepia, invert)
 - **Ctrl + Up / Down** - Change brightness
 - **Shift + Up / Down** - Change saturation
