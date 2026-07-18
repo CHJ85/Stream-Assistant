@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.0.9
+// @version      3.1.0
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -80,6 +80,7 @@
     };
 
     // --- State Management ---
+    let wasMouseSpeedUp = false;
     let video = null;
     let fastSeek = false;
     let aspectRatioOption = 0;
@@ -301,6 +302,12 @@
     document.addEventListener('keyup', handleKeyUp, true);
     document.addEventListener('mousedown', handleMouseDown, true);
     document.addEventListener('mouseup', handleMouseUp, true);
+    document.addEventListener('click', (e) => {
+        if (wasMouseSpeedUp) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
+    }, true);
     window.addEventListener('blur', () => { isEPressed = false; });
 
     function handleKeyDown(e) {
@@ -541,8 +548,17 @@
             isMouseHeldDown = false;
             clearTimeout(mouseHoldTimer);
             clearInterval(enforceSpeedInterval);
+            
             if (duration >= config.holdThreshold && video) {
                 video.playbackRate = originalPlaybackSpeed;
+                
+                // Stop the mouseup from reaching the streaming site's player
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                
+                // Set a temporary flag to block the 'click' event that follows
+                wasMouseSpeedUp = true;
+                setTimeout(() => { wasMouseSpeedUp = false; }, 50);
             }
         }
     }
@@ -1169,7 +1185,7 @@
     });
 
     // --- Front-load Audio API on Webpage/Video Load ---
-    
+
     // 1. Intercept video initialization before playback actually begins
     // Using the capture phase (true) ensures we catch these events immediately, bypassing site UI blockers.
     document.addEventListener('loadedmetadata', (e) => {
@@ -1184,7 +1200,7 @@
             // Secondary failsafe: If the video attempts to play, ensure the graph is hooked up
             if (!audioContextData) {
                 loadVideo();
-                initAudioGraph(); 
+                initAudioGraph();
             }
         }
     }, true);
