@@ -36,7 +36,6 @@ Stream Assistant bridges the gap between basic video players and power-user need
 **Visuals & Filters**
 - **+ / -** or **> / <** - Change playback speed
 - **A** - Change aspect ratio (zoom / stretch / normal)
-<span style="color:red">**BETA**</span> - **Shift + Mousewheel** - Zoom in/out (not in fullscreen, not all streaming services)
 - **B** - Cycle video filters (B&W, sepia, invert)
 - **Ctrl + Up / Down** - Change brightness
 - **Shift + Up / Down** - Change saturation
@@ -65,6 +64,9 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **Shift + 8** - Gothic Midnight Desat (A drained, moody look that strips the color down to a ghostly silver tint)
 - **Shift + 9** - Hyper-Luminous Pop (An aggressive pop-art style brightness and color lift for dim web video)
 - **Ctrl + 0** or **Shift + 0** - Revert back to normal
+
+**BETA Features**
+- **Shift + Mousewheel** - Zoom in/out (does currently not work in fullscreen, and not all streaming services are supported)
 
 # Supported streaming services
 - Adult Swim
