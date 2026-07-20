@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.1.6
+// @version      3.1.7
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw/effects video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -81,7 +81,6 @@
 
     // --- State Management ---
     let video = null;
-    let fastSeek = false;
     let aspectRatioOption = 0;
     let isEPressed = false;
     let eKeyUsedAsModifier = false;
@@ -150,8 +149,8 @@
     let animationFrameId = null;
     let vizData = {
         time: 0,
- stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
- matrixDrops: Array(100).fill(0)
+        stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
+        matrixDrops: Array(100).fill(0)
     };
 
     // --- Helper Functions ---
@@ -189,10 +188,10 @@
     function getSupportedMimeType() {
         const preferredTypes = [
             'video/webm; codecs=vp9,opus',
- 'video/webm; codecs=vp8,opus',
- 'video/webm',
- 'video/mp4; codecs=h264,aac',
- 'video/mp4'
+            'video/webm; codecs=vp8,opus',
+            'video/webm',
+            'video/mp4; codecs=h264,aac',
+            'video/mp4'
         ];
 
         for (const mimeType of preferredTypes) {
@@ -369,7 +368,7 @@
         const audioStream = audioContextData.streamDestination.stream;
         const combinedStream = new MediaStream([
             ...canvasStream.getVideoTracks(),
-                                               ...audioStream.getAudioTracks()
+            ...audioStream.getAudioTracks()
         ]);
 
         try {
@@ -384,87 +383,87 @@
             if (e.data && e.data.size > 0) canvasRecordedChunks.push(e.data);
         };
 
-            const targetVideo = video;
+        const targetVideo = video;
 
-            canvasMediaRecorder.onstop = () => {
-                isCanvasRecording = false;
-                cancelAnimationFrame(canvasRecordFrameId);
-                hideRecordingIndicator();
+        canvasMediaRecorder.onstop = () => {
+            isCanvasRecording = false;
+            cancelAnimationFrame(canvasRecordFrameId);
+            hideRecordingIndicator();
 
-                if (targetVideo) {
-                    targetVideo.removeEventListener('pause', handleVideoPause);
-                    targetVideo.removeEventListener('play', handleVideoResume);
-                }
-                activeVideoForRecordListeners = null;
+            if (targetVideo) {
+                targetVideo.removeEventListener('pause', handleVideoPause);
+                targetVideo.removeEventListener('play', handleVideoResume);
+            }
+            activeVideoForRecordListeners = null;
 
-                const blob = new Blob(canvasRecordedChunks, { type: mimeType || 'video/webm' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                document.body.appendChild(a);
-                a.style = 'display: none';
-                a.href = url;
+            const blob = new Blob(canvasRecordedChunks, { type: mimeType || 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            document.body.appendChild(a);
+            a.style = 'display: none';
+            a.href = url;
 
-                const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-                a.download = `StreamAssistant_Effects_Recording_${Date.now()}.${ext}`;
-                a.click();
+            const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+            a.download = `StreamAssistant_Effects_Recording_${Date.now()}.${ext}`;
+            a.click();
 
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
 
-                // Clear buffer immediately to free memory
-                canvasRecordedChunks = [];
-            };
+            // Clear buffer immediately to free memory
+            canvasRecordedChunks = [];
+        };
 
-            // Render Loop: Draw video and apply active filters/zoom to canvas
-            const drawFrame = () => {
-                if (!isCanvasRecording) return;
+        // Render Loop: Draw video and apply active filters/zoom to canvas
+        const drawFrame = () => {
+            if (!isCanvasRecording) return;
 
-                // Match native video resolution
-                if (recordCanvas.width !== video.videoWidth || recordCanvas.height !== video.videoHeight) {
-                    recordCanvas.width = video.videoWidth || 1280;
-                    recordCanvas.height = video.videoHeight || 720;
-                }
+            // Match native video resolution
+            if (recordCanvas.width !== video.videoWidth || recordCanvas.height !== video.videoHeight) {
+                recordCanvas.width = video.videoWidth || 1280;
+                recordCanvas.height = video.videoHeight || 720;
+            }
 
-                recordCtx.clearRect(0, 0, recordCanvas.width, recordCanvas.height);
+            recordCtx.clearRect(0, 0, recordCanvas.width, recordCanvas.height);
 
-                // Apply Video Filters to Canvas Context
-                if (filters.profile) {
-                    recordCtx.filter = filters.profile;
-                } else {
-                    const baseFilters = `brightness(${filters.brightness}) hue-rotate(${filters.hue}deg) saturate(${filters.saturation}) contrast(${filters.contrast})`;
-                    recordCtx.filter = filters.special !== 'none' ? `${baseFilters} ${filters.special}` : baseFilters;
-                }
+            // Apply Video Filters to Canvas Context
+            if (filters.profile) {
+                recordCtx.filter = filters.profile;
+            } else {
+                const baseFilters = `brightness(${filters.brightness}) hue-rotate(${filters.hue}deg) saturate(${filters.saturation}) contrast(${filters.contrast})`;
+                recordCtx.filter = filters.special !== 'none' ? `${baseFilters} ${filters.special}` : baseFilters;
+            }
 
-                // Apply Zoom/Scale
-                recordCtx.save();
-                if (videoScale !== 1.0) {
-                    recordCtx.translate(recordCanvas.width / 2, recordCanvas.height / 2);
-                    recordCtx.scale(videoScale, videoScale);
-                    recordCtx.translate(-recordCanvas.width / 2, -recordCanvas.height / 2);
-                }
+            // Apply Zoom/Scale
+            recordCtx.save();
+            if (videoScale !== 1.0) {
+                recordCtx.translate(recordCanvas.width / 2, recordCanvas.height / 2);
+                recordCtx.scale(videoScale, videoScale);
+                recordCtx.translate(-recordCanvas.width / 2, -recordCanvas.height / 2);
+            }
 
-                // Draw Video Frame
-                recordCtx.drawImage(video, 0, 0, recordCanvas.width, recordCanvas.height);
-                recordCtx.restore();
+            // Draw Video Frame
+            recordCtx.drawImage(video, 0, 0, recordCanvas.width, recordCanvas.height);
+            recordCtx.restore();
 
-                // Overlay Visualizer if active (Drawn above video, unaffectedly by video filters)
-                if (visCanvas && currentVisMode !== 0) {
-                    recordCtx.filter = 'none'; // Reset filter for visualizer overlay
-                    recordCtx.drawImage(visCanvas, 0, 0, recordCanvas.width, recordCanvas.height);
-                }
+            // Overlay Visualizer if active (Drawn above video, unaffectedly by video filters)
+            if (visCanvas && currentVisMode !== 0) {
+                recordCtx.filter = 'none'; // Reset filter for visualizer overlay
+                recordCtx.drawImage(visCanvas, 0, 0, recordCanvas.width, recordCanvas.height);
+            }
 
-                canvasRecordFrameId = requestAnimationFrame(drawFrame);
-            };
+            canvasRecordFrameId = requestAnimationFrame(drawFrame);
+        };
 
-            // Start Recording
-            isCanvasRecording = true;
-            drawFrame(); // Kick off the render loop
-            canvasMediaRecorder.start();
-            showRecordingIndicator();
+        // Start Recording
+        isCanvasRecording = true;
+        drawFrame(); // Kick off the render loop
+        canvasMediaRecorder.start();
+        showRecordingIndicator();
 
-            targetVideo.addEventListener('pause', handleVideoPause);
-            targetVideo.addEventListener('play', handleVideoResume);
-            activeVideoForRecordListeners = targetVideo;
+        targetVideo.addEventListener('pause', handleVideoPause);
+        targetVideo.addEventListener('play', handleVideoResume);
+        activeVideoForRecordListeners = targetVideo;
     }
 
     // --- Initialization & Event Listeners ---
@@ -508,6 +507,8 @@
         if (e.key.toLowerCase() === 'e') {
             isEPressed = true;
             eKeyUsedAsModifier = false;
+        } else if (isEPressed) {
+            eKeyUsedAsModifier = true;
         }
 
         // --- Censor Bleep (X Key) ---
@@ -634,7 +635,6 @@
                 case 'ArrowRight': e.preventDefault(); seekVideo(config.seek); break;
                 case 'ArrowLeft': e.preventDefault(); seekVideo(-config.seek); break;
                 case '<': case '-': adjustPlaybackSpeed(-1); break;
-                // ... the rest remains the same
                 case '>': case '+': adjustPlaybackSpeed(1); break;
                 case 'a': toggleAspectRatio(); break;
                 case 'o': toggleEqualizer(); break;
@@ -715,41 +715,45 @@
             hasAriaLabel ||
             isInputFieldEvent(e)) {
             return;
+        }
+
+        if (!video) loadVideo();
+
+        if (video) {
+            const rect = video.getBoundingClientRect();
+            const isInsideVideo = (
+                e.clientX >= rect.left &&
+                e.clientX <= rect.right &&
+                e.clientY >= rect.top &&
+                e.clientY <= rect.bottom
+            );
+
+            if (!isInsideVideo) {
+                return;
             }
+        }
 
-            if (!video) loadVideo();
+        mouseDownTime = Date.now();
+        isMouseHeldDown = true;
 
-            if (video) {
-                const rect = video.getBoundingClientRect();
-                const isInsideVideo = (
-                    e.clientX >= rect.left &&
-                    e.clientX <= rect.right &&
-                    e.clientY >= rect.top &&
-                    e.clientY <= rect.bottom
-                );
+        mouseHoldTimer = setTimeout(() => {
+            if (isMouseHeldDown) {
+                loadVideo();
+                if (video) {
+                    originalPlaybackSpeed = video.playbackRate || 1.0;
+                    video.playbackRate = 2.0;
 
-                if (!isInsideVideo) {
-                    return;
-                }
-            }
-
-            mouseDownTime = Date.now();
-            isMouseHeldDown = true;
-
-            mouseHoldTimer = setTimeout(() => {
-                if (isMouseHeldDown) {
-                    loadVideo();
-                    if (video) {
-                        originalPlaybackSpeed = video.playbackRate || 1.0;
-                        video.playbackRate = 2.0;
-
-                        clearInterval(enforceSpeedInterval);
-                        enforceSpeedInterval = setInterval(() => {
-                            if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
-                        }, 100);
+                    if (video.paused) {
+                        video.play().catch(err => console.log(err));
                     }
+
+                    clearInterval(enforceSpeedInterval);
+                    enforceSpeedInterval = setInterval(() => {
+                        if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
+                    }, 100);
                 }
-            }, config.holdThreshold);
+            }
+        }, config.holdThreshold);
     }
 
     function handleMouseUp(e) {
@@ -797,7 +801,6 @@
 
             video = newVideo;
             videoScale = 1.0;
-            fastSeek = typeof video.fastSeek === 'function';
             applyFilters();
             setupVisualizerCanvas();
             setupZoomListener();
@@ -806,7 +809,6 @@
 
     function seekVideo(value) {
         if (!video) return;
-        // Clamp the time between 0 and the video's duration
         const pos = Math.max(0, Math.min(video.currentTime + value, video.duration || Infinity));
         video.currentTime = pos;
     }
@@ -836,15 +838,16 @@
             spacebarHeldDown = false;
             isMouseHeldDown = false;
 
-            playbackSpeed = clamp(playbackSpeed + direction * config.playbackSpeedStep, 0.25, 4);
+            const currentRate = video.playbackRate || playbackSpeed;
+            playbackSpeed = clamp(currentRate + direction * config.playbackSpeedStep, 0.25, 4);
             video.playbackRate = playbackSpeed;
         }
     }
     function toggleAspectRatio() {
         if (!video) return;
         const options = [{ fit: 'fill', pos: 'center' }, { fit: 'contain', pos: 'center' }, { fit: 'cover', pos: 'center' }];
-        video.style.objectFit = options[aspectRatioOption].fit;
-        video.style.objectPosition = options[aspectRatioOption].pos;
+        video.style.setProperty('object-fit', options[aspectRatioOption].fit, 'important');
+        video.style.setProperty('object-position', options[aspectRatioOption].pos, 'important');
         aspectRatioOption = (aspectRatioOption + 1) % options.length;
     }
 
@@ -1031,10 +1034,10 @@
 
         audioContextData = {
             context, source, analyser, compressor,
- videoGain, bleepGain, bleepOsc, bassFilter, vocalFilter,
- monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
- eqActive: false, compActive: false, monoActive: false,
- streamDestination
+            videoGain, bleepGain, bleepOsc, bassFilter, vocalFilter,
+            monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
+            eqActive: false, compActive: false, monoActive: false,
+            streamDestination
         };
     }
 
@@ -1168,9 +1171,19 @@
         initAudioGraph();
         setupVisualizerCanvas();
         currentVisMode = mode;
+
+        if (currentVisMode !== 0 && !animationFrameId) {
+            renderVisualizer();
+        }
     }
 
     function renderVisualizer() {
+        if (!visCtx || !visCanvas || !audioContextData || currentVisMode === 0) {
+            if (visCtx && visCanvas) visCtx.clearRect(0, 0, visCanvas.width, visCanvas.height);
+            animationFrameId = null;
+            return;
+        }
+
         animationFrameId = requestAnimationFrame(renderVisualizer);
 
         if (visCanvas && video) {
@@ -1179,11 +1192,6 @@
                 visCanvas.width = rect.width;
                 visCanvas.height = rect.height;
             }
-        }
-
-        if (!visCtx || !visCanvas || !audioContextData || currentVisMode === 0) {
-            if (visCtx && visCanvas) visCtx.clearRect(0, 0, visCanvas.width, visCanvas.height);
-            return;
         }
 
         const { analyser } = audioContextData;
@@ -1393,7 +1401,7 @@
             });
             if (shouldRemoveAds) removeAds();
         });
-            observer.observe(document.documentElement, { childList: true, subtree: true });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
