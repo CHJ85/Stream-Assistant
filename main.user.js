@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.1.5
+// @version      3.1.6
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw/effects video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -624,16 +624,17 @@
 
         if (e.key.toLowerCase() !== 'e' && e.key.toLowerCase() !== 'x') {
             switch (e.key) {
-                case 'l': seekVideo(config.seek); break;
-                case 'j': seekVideo(-config.seek); break;
+                case 'l': e.preventDefault(); seekVideo(config.seek); break;
+                case 'j': e.preventDefault(); seekVideo(-config.seek); break;
                 case 'ArrowUp': adjustVolume(config.volume); break;
                 case 'ArrowDown': adjustVolume(-config.volume); break;
                 case 'm': toggleMute(); break;
                 case 'k': e.preventDefault(); e.stopImmediatePropagation(); togglePlayPause(); break;
                 case 'f': if (!document.baseURI.includes('play.hbomax.com')) toggleFullscreen(); break;
-                case 'ArrowRight': seekVideo(config.seek); break;
-                case 'ArrowLeft': seekVideo(-config.seek); break;
+                case 'ArrowRight': e.preventDefault(); seekVideo(config.seek); break;
+                case 'ArrowLeft': e.preventDefault(); seekVideo(-config.seek); break;
                 case '<': case '-': adjustPlaybackSpeed(-1); break;
+                // ... the rest remains the same
                 case '>': case '+': adjustPlaybackSpeed(1); break;
                 case 'a': toggleAspectRatio(); break;
                 case 'o': toggleEqualizer(); break;
@@ -805,8 +806,9 @@
 
     function seekVideo(value) {
         if (!video) return;
-        const pos = video.currentTime + value;
-        fastSeek ? video.fastSeek(pos) : video.currentTime = pos;
+        // Clamp the time between 0 and the video's duration
+        const pos = Math.max(0, Math.min(video.currentTime + value, video.duration || Infinity));
+        video.currentTime = pos;
     }
 
     function adjustVolume(value) {
