@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.1.8
+// @version      3.1.9
 // @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, and raw/effects video recording (with auto-pause).
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -814,18 +814,18 @@
         const pos = Math.max(0, Math.min(video.currentTime + value, video.duration || Infinity));
         video.currentTime = pos;
     }
-    
+
     function stepFrame(direction) {
         if (!video) return;
-        
+
         // Pause the video if it's currently playing so you can actually see the frame
         if (!video.paused) {
             video.pause();
         }
-        
+
         // Assume 30 FPS for standard web video (1 frame = ~0.0333 seconds)
-        const frameTime = 1 / 30; 
-        
+        const frameTime = 1 / 30;
+
         // Clamp the time to prevent seeking past the start or end
         const pos = Math.max(0, Math.min(video.currentTime + (direction * frameTime), video.duration || Infinity));
         video.currentTime = pos;
@@ -1427,31 +1427,4 @@
         removeAds();
         initHostBlocker();
     });
-
-    // --- Front-load Audio API on Webpage/Video Load ---
-
-    document.addEventListener('loadedmetadata', (e) => {
-        if (e.target && e.target.tagName === 'VIDEO') {
-            loadVideo();
-            initAudioGraph();
-        }
-    }, true);
-
-    document.addEventListener('play', (e) => {
-        if (e.target && e.target.tagName === 'VIDEO') {
-            if (!audioContextData) {
-                loadVideo();
-                initAudioGraph();
-            }
-        }
-    }, true);
-
-    const wakeUpAudio = () => {
-        if (audioContextData && audioContextData.context.state === 'suspended') {
-            audioContextData.context.resume().catch(() => {});
-        }
-    };
-
-    document.addEventListener('click', wakeUpAudio, { capture: true });
-    document.addEventListener('keydown', wakeUpAudio, { capture: true });
 })();
