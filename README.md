@@ -14,7 +14,8 @@ Stream Assistant bridges the gap between basic video players and power-user need
 # Keyboard shortcuts
 **Playback & Navigation**
 - **J / L** or **Left / Right** - Seek 5s backward / forward
-- **S** - Jump forward 30 seconds (for when "skip intro" is unavailable)
+- **S + Right / Left** - Skip forward / backwards 30 seconds
+- **S + Up / Down** - Skip forward / backwards 1 minute
 - **K / Space / Click** - Play / pause
 - **Hold down Space / Hold down right mouse click** - Play video at 2x speed
 - **F** - Fullscreen
