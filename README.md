@@ -23,6 +23,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **N** - Skip end credits and jump to next episode
 - **0-9** - Jump to specific percentage (0 = Beginning, 1 = 10%, etc.)
 - **. / ,** - Next / previous frame (frame stepping)
+- ** Shift + L** - A-B loop (use shift+l to mart start point, end point and to cancel the loop)
 
 **Audio & Sound**
 - **Up / Down** - Volume control
