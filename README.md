@@ -46,7 +46,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **Hold down H** - Hue color control (rainbow cycle)
 - **R** - Revert all filters (hue, contrast, saturation, brightness) to normal
 - **Shift + R** - Toggle video recorder on/off (raw video without filters and effects) (Does not work with DRM protected content)
-- **Ctrl + Shift + R** - Toggle video recorder on/off (supports filters and effects) (DRM protected video is blacked out)
+- **Ctrl + Shift + R** - Toggle video recorder on/off (supports filters and effects, splits video recording into 15 minute chunks) (DRM protected video is blacked out)
 
 **Visual Filter Presets** (Color grading profiles and display enhancement modes)
 - **Ctrl + 1** - Retro CRT Soften (Softens harsh blocky pixels on low-bitrate streams)
