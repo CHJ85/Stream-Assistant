@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.2.3
-// @description  Adds keyboard shortcuts, filters, EQ controls (Bass/Vocals), Censor bleep, zoom controls, Mono Downmix, visualizers, A-B Looping, auto-splitting Canvas recorder, and raw/effects video recording.
+// @version      3.2.4
+// @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording and more.
 // @author       CHJ85
 // @match        https://*.max.com/*
 // @match        https://play.hbomax.com/*
@@ -86,6 +86,8 @@
     let eKeyUsedAsModifier = false;
     let isSPressed = false;
     let sKeyUsedAsModifier = false;
+    let isHPressed = false;
+    let hKeyUsedAsModifier = false;
     let videoScale = 1.0;
 
     // --- A-B Loop State ---
@@ -160,8 +162,8 @@
     let animationFrameId = null;
     let vizData = {
         time: 0,
-        stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
-        matrixDrops: Array(100).fill(0)
+ stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
+ matrixDrops: Array(100).fill(0)
     };
 
     // --- Helper Functions ---
@@ -243,10 +245,10 @@
     function getSupportedMimeType() {
         const preferredTypes = [
             'video/webm; codecs=vp9,opus',
-            'video/webm; codecs=vp8,opus',
-            'video/webm',
-            'video/mp4; codecs=h264,aac',
-            'video/mp4'
+ 'video/webm; codecs=vp8,opus',
+ 'video/webm',
+ 'video/mp4; codecs=h264,aac',
+ 'video/mp4'
         ];
 
         for (const mimeType of preferredTypes) {
@@ -421,7 +423,7 @@
         const audioStream = audioContextData.streamDestination.stream;
         const combinedStream = new MediaStream([
             ...canvasStream.getVideoTracks(),
-            ...audioStream.getAudioTracks()
+                                               ...audioStream.getAudioTracks()
         ]);
 
         recordingPart = 1;
@@ -445,47 +447,47 @@
                 if (e.data && e.data.size > 0) canvasRecordedChunks.push(e.data);
             };
 
-            canvasMediaRecorder.onstop = () => {
-                const currentPart = recordingPart;
-                const blob = new Blob(canvasRecordedChunks, { type: mimeType || 'video/webm' });
-                canvasRecordedChunks = []; // Clear RAM memory buffer immediately!
+                canvasMediaRecorder.onstop = () => {
+                    const currentPart = recordingPart;
+                    const blob = new Blob(canvasRecordedChunks, { type: mimeType || 'video/webm' });
+                    canvasRecordedChunks = []; // Clear RAM memory buffer immediately!
 
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                document.body.appendChild(a);
-                a.style = 'display: none';
-                a.href = url;
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    document.body.appendChild(a);
+                    a.style = 'display: none';
+                    a.href = url;
 
-                const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-                a.download = `StreamAssistant_Effects_Recording_Part${currentPart}_${Date.now()}.${ext}`;
-                a.click();
+                    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+                    a.download = `StreamAssistant_Effects_Recording_Part${currentPart}_${Date.now()}.${ext}`;
+                    a.click();
 
-                window.URL.revokeObjectURL(url);
-                document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
 
-                if (isAutoSplitting && isCanvasRecording) {
-                    recordingPart++;
-                    isAutoSplitting = false;
-                    if (setupNewRecorder()) {
-                        canvasMediaRecorder.start();
-                        scheduleAutoSplit();
+                    if (isAutoSplitting && isCanvasRecording) {
+                        recordingPart++;
+                        isAutoSplitting = false;
+                        if (setupNewRecorder()) {
+                            canvasMediaRecorder.start();
+                            scheduleAutoSplit();
+                        }
+                    } else {
+                        // Manual/Final Stop Cleanup
+                        isCanvasRecording = false;
+                        clearTimeout(canvasSplitTimer);
+                        cancelAnimationFrame(canvasRecordFrameId);
+                        hideRecordingIndicator();
+
+                        if (targetVideo) {
+                            targetVideo.removeEventListener('pause', handleVideoPause);
+                            targetVideo.removeEventListener('play', handleVideoResume);
+                        }
+                        activeVideoForRecordListeners = null;
                     }
-                } else {
-                    // Manual/Final Stop Cleanup
-                    isCanvasRecording = false;
-                    clearTimeout(canvasSplitTimer);
-                    cancelAnimationFrame(canvasRecordFrameId);
-                    hideRecordingIndicator();
+                };
 
-                    if (targetVideo) {
-                        targetVideo.removeEventListener('pause', handleVideoPause);
-                        targetVideo.removeEventListener('play', handleVideoResume);
-                    }
-                    activeVideoForRecordListeners = null;
-                }
-            };
-
-            return true;
+                return true;
         };
 
         const scheduleAutoSplit = () => {
@@ -504,7 +506,7 @@
 
             if (!video || !document.body.contains(video)) {
                 console.warn("Stream Assistant: Video element removed. Halting recording.");
-                toggleCanvasRecording(); 
+                toggleCanvasRecording();
                 return;
             }
 
@@ -570,6 +572,7 @@
     window.addEventListener('blur', () => {
         isEPressed = false;
         isSPressed = false;
+        isHPressed = false;
         isMouseHeldDown = false;
         spacebarHeldDown = false;
 
@@ -603,6 +606,13 @@
             sKeyUsedAsModifier = false;
         } else if (isSPressed) {
             sKeyUsedAsModifier = true;
+        }
+        
+        if (e.key.toLowerCase() === 'h') {
+            isHPressed = true;
+            hKeyUsedAsModifier = false;
+        } else if (isHPressed) {
+            hKeyUsedAsModifier = true;
         }
 
         // --- Censor Bleep (X Key) ---
@@ -679,6 +689,9 @@
             if (e.key === 'ArrowLeft') { e.preventDefault(); seekVideo(-30); sKeyUsedAsModifier = true; return; }
             if (e.key === 'ArrowUp') { e.preventDefault(); seekVideo(60); sKeyUsedAsModifier = true; return; }
             if (e.key === 'ArrowDown') { e.preventDefault(); seekVideo(-60); sKeyUsedAsModifier = true; return; }
+        } else if (isHPressed) {
+            if (e.key === 'ArrowRight') { e.preventDefault(); adjustFilter('hue', config.hueStep); hKeyUsedAsModifier = true; return; }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); adjustFilter('hue', -config.hueStep); hKeyUsedAsModifier = true; return; }
         }
         else if (e.ctrlKey || e.shiftKey) {
 
@@ -728,7 +741,7 @@
 
         loadVideo();
 
-        if (e.key.toLowerCase() !== 'e' && e.key.toLowerCase() !== 'x' && e.key.toLowerCase() !== 's') {
+        if (e.key.toLowerCase() !== 'e' && e.key.toLowerCase() !== 'x' && e.key.toLowerCase() !== 's' && e.key.toLowerCase() !== 'h') {
             switch (e.key) {
                 case 'l': e.preventDefault(); seekVideo(config.seek); break;
                 case 'j': e.preventDefault(); seekVideo(-config.seek); break;
@@ -748,7 +761,6 @@
                 case 'v': toggleCompressor(); break;
                 case 'b': toggleBlackAndWhite(); break;
                 case 'i': skipIntro(); break;
-                case 'h': adjustFilter('hue', config.hueStep); break;
                 case 'n': clickNextEpisodeButton(); break;
                 case 'r': resetFilters(); break;
                 case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
@@ -772,6 +784,10 @@
 
         if (e.key.toLowerCase() === 's') {
             isSPressed = false;
+        }
+        
+        if (e.key.toLowerCase() === 'h') {
+            isHPressed = false;
         }
 
         if (e.key.toLowerCase() === 'x') {
@@ -823,45 +839,45 @@
             hasAriaLabel ||
             isInputFieldEvent(e)) {
             return;
-        }
-
-        if (!video) loadVideo();
-
-        if (video) {
-            const rect = video.getBoundingClientRect();
-            const isInsideVideo = (
-                e.clientX >= rect.left &&
-                e.clientX <= rect.right &&
-                e.clientY >= rect.top &&
-                e.clientY <= rect.bottom
-            );
-
-            if (!isInsideVideo) {
-                return;
             }
-        }
 
-        mouseDownTime = Date.now();
-        isMouseHeldDown = true;
+            if (!video) loadVideo();
 
-        mouseHoldTimer = setTimeout(() => {
-            if (isMouseHeldDown) {
-                loadVideo();
-                if (video) {
-                    originalPlaybackSpeed = video.playbackRate || 1.0;
-                    video.playbackRate = 2.0;
+            if (video) {
+                const rect = video.getBoundingClientRect();
+                const isInsideVideo = (
+                    e.clientX >= rect.left &&
+                    e.clientX <= rect.right &&
+                    e.clientY >= rect.top &&
+                    e.clientY <= rect.bottom
+                );
 
-                    if (video.paused) {
-                        video.play().catch(err => console.log(err));
-                    }
-
-                    clearInterval(enforceSpeedInterval);
-                    enforceSpeedInterval = setInterval(() => {
-                        if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
-                    }, 100);
+                if (!isInsideVideo) {
+                    return;
                 }
             }
-        }, config.holdThreshold);
+
+            mouseDownTime = Date.now();
+            isMouseHeldDown = true;
+
+            mouseHoldTimer = setTimeout(() => {
+                if (isMouseHeldDown) {
+                    loadVideo();
+                    if (video) {
+                        originalPlaybackSpeed = video.playbackRate || 1.0;
+                        video.playbackRate = 2.0;
+
+                        if (video.paused) {
+                            video.play().catch(err => console.log(err));
+                        }
+
+                        clearInterval(enforceSpeedInterval);
+                        enforceSpeedInterval = setInterval(() => {
+                            if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
+                        }, 100);
+                    }
+                }
+            }, config.holdThreshold);
     }
 
     function handleMouseUp(e) {
@@ -1145,10 +1161,10 @@
 
         audioContextData = {
             context, source, analyser, compressor,
-            videoGain, bleepGain, bleepOsc, bassFilter, vocalFilter,
-            monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
-            eqActive: false, compActive: false, monoActive: false,
-            streamDestination
+ videoGain, bleepGain, bleepOsc, bassFilter, vocalFilter,
+ monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
+ eqActive: false, compActive: false, monoActive: false,
+ streamDestination
         };
     }
 
@@ -1500,10 +1516,10 @@
                 if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
                     mutation.addedNodes.forEach(node => {
                         if (node.tagName === 'VIDEO') {
-                            if (node.src && blockedHosts.some(host => node.src.includes(host))) { 
-                                node.pause(); 
-                                node.remove(); 
-                                if (node === video) video = null; 
+                            if (node.src && blockedHosts.some(host => node.src.includes(host))) {
+                                node.pause();
+                                node.remove();
+                                if (node === video) video = null;
                             }
                         }
                         if (node.nodeType === 1 && (node.className && typeof node.className === 'string' && (node.className.includes('AdInfoBar') || node.className.includes('AdsContainer') || node.className.includes('abvsVideo')))) {
@@ -1514,7 +1530,7 @@
             });
             if (shouldRemoveAds) removeAds();
         });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
+            observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
