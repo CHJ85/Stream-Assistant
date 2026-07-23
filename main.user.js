@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.2.4
-// @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording and more.
+// @version      3.2.6
+// @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording, zoom in/out, change aspect ratio, and much more.
 // @author       CHJ85
 // @match        https://*.max.com/*
 // @match        https://play.hbomax.com/*
@@ -90,6 +90,9 @@
     let hKeyUsedAsModifier = false;
     let videoScale = 1.0;
 
+    // --- Palette State ---
+    let currentHuePaletteIndex = 0;
+
     // --- A-B Loop State ---
     let loopStartTime = null;
     let loopEndTime = null;
@@ -97,11 +100,11 @@
 
     const filters = {
         brightness: 1.0,
-        hue: 0,
-        saturation: 1.0,
-        contrast: 1.0,
-        special: 'none',
-        profile: null
+ hue: 0,
+ saturation: 1.0,
+ contrast: 1.0,
+ special: 'none',
+ profile: null
     };
 
     let playbackSpeed = 1.0;
@@ -556,6 +559,27 @@
         }
     }
 
+    function applyHuePalette(index) {
+        const huePalettes = {
+            1: 'sepia(100%) hue-rotate(280deg) saturate(300%) contrast(1.2)', // Cyberpunk / Synthwave (Magenta/Cyan)
+2: 'sepia(70%) hue-rotate(310deg) saturate(250%) contrast(1.1) brightness(1.1)', // Sunset / Vaporwave (Orange/Pink/Purple)
+3: 'sepia(100%) hue-rotate(90deg) saturate(400%) contrast(1.5) brightness(0.9)', // Matrix / Digital (Neon Green)
+4: 'sepia(100%) hue-rotate(180deg) saturate(150%) contrast(1.2) brightness(1.3)', // Ice / Arctic (Ice Blue)
+5: 'sepia(100%) hue-rotate(350deg) saturate(400%) contrast(1.4) brightness(0.9)', // Fire / Ember (Deep Red/Orange)
+6: 'sepia(50%) hue-rotate(170deg) saturate(150%) contrast(1.3) brightness(0.9)', // Teal and Amber (Complementary Contrast)
+7: 'sepia(30%) hue-rotate(250deg) saturate(80%) contrast(0.85) brightness(1.2)', // Pastel Dreams (Soft Lavender/Mint)
+8: 'sepia(100%) hue-rotate(340deg) saturate(350%) contrast(1.8) brightness(0.6)', // 80s Slasher (Blood Red/Shadows)
+9: 'sepia(40%) hue-rotate(230deg) saturate(180%) contrast(1.1) brightness(0.95)', // 16-bit CRT (Retro SNES Purples)
+        };
+
+        if (index === 0) {
+            resetFilters();
+        } else if (huePalettes[index]) {
+            filters.profile = huePalettes[index];
+            applyFilters();
+        }
+    }
+
     // --- Event Listeners ---
     document.addEventListener('keydown', handleKeyDown, true);
     document.addEventListener('keyup', handleKeyUp, true);
@@ -607,7 +631,7 @@
         } else if (isSPressed) {
             sKeyUsedAsModifier = true;
         }
-        
+
         if (e.key.toLowerCase() === 'h') {
             isHPressed = true;
             hKeyUsedAsModifier = false;
@@ -692,6 +716,21 @@
         } else if (isHPressed) {
             if (e.key === 'ArrowRight') { e.preventDefault(); adjustFilter('hue', config.hueStep); hKeyUsedAsModifier = true; return; }
             if (e.key === 'ArrowLeft') { e.preventDefault(); adjustFilter('hue', -config.hueStep); hKeyUsedAsModifier = true; return; }
+
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentHuePaletteIndex = (currentHuePaletteIndex + 1) % 10;
+                applyHuePalette(currentHuePaletteIndex);
+                hKeyUsedAsModifier = true;
+                return;
+            }
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentHuePaletteIndex = (currentHuePaletteIndex - 1 + 10) % 10;
+                applyHuePalette(currentHuePaletteIndex);
+                hKeyUsedAsModifier = true;
+                return;
+            }
         }
         else if (e.ctrlKey || e.shiftKey) {
 
@@ -785,7 +824,7 @@
         if (e.key.toLowerCase() === 's') {
             isSPressed = false;
         }
-        
+
         if (e.key.toLowerCase() === 'h') {
             isHPressed = false;
         }
