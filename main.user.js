@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.2.6
+// @version      3.2.7
 // @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording, zoom in/out, change aspect ratio, and much more.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -44,6 +44,7 @@
 // @match        https://pluto.tv/*
 // @match        https://www.dailymotion.com/*
 // @match        https://distro.tv/*
+// @match        https://play.xumo.com/*
 // @match        https://www.paramountplus.com/*
 // @match        https://www.investigationdiscovery.com/*
 // @match        https://audiovisual.ec.europa.eu/*
@@ -645,8 +646,7 @@
             initAudioGraph();
             if (audioContextData) {
                 const now = audioContextData.context.currentTime;
-                audioContextData.bleepGain.gain.cancelScheduledValues(now);
-                audioContextData.videoGain.gain.cancelScheduledValues(now);
+                // Quick 15ms crossfade to avoid popping
                 audioContextData.bleepGain.gain.setTargetAtTime(0.15, now, 0.015);
                 audioContextData.videoGain.gain.setTargetAtTime(0, now, 0.015);
             }
@@ -1576,5 +1576,18 @@
         loadVideo();
         removeAds();
         initHostBlocker();
+
+        // Pre-initialize the audio graph on the first user interaction
+        const preInitAudio = () => {
+            if (video && !audioContextData) {
+                initAudioGraph();
+            }
+            // Remove the listeners once the graph is built so it only runs once
+            document.removeEventListener('click', preInitAudio);
+            document.removeEventListener('keydown', preInitAudio);
+        };
+
+        document.addEventListener('click', preInitAudio);
+        document.addEventListener('keydown', preInitAudio);
     });
 })();
