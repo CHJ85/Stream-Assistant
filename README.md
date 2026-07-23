@@ -43,7 +43,8 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **Ctrl + Up / Down** - Change brightness
 - **Shift + Up / Down** - Change saturation
 - **Shift + Left / Right** - Change contrast
-- **Hold down H** - Hue color control (rainbow cycle)
+- **Hold down H + Left / Right** - Hue color control (rainbow cycle)
+- **Hold down H + Up / Down** - Hue color control (disco show)
 - **R** - Revert all filters (hue, contrast, saturation, brightness) to normal
 - **Shift + R** - Toggle video recorder on/off (raw video without filters and effects) (Does not work with DRM protected content)
 - **Ctrl + Shift + R** - Toggle video recorder on/off (supports filters and effects, splits video recording into 15 minute chunks) (DRM protected video is blacked out)
