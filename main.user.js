@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.2.7
+// @version      3.2.8
 // @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording, zoom in/out, change aspect ratio, and much more.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -733,6 +733,7 @@
             }
         }
         else if (e.ctrlKey || e.shiftKey) {
+            loadVideo();
 
             if (e.shiftKey && e.key.toLowerCase() === 'l') {
                 e.preventDefault();
