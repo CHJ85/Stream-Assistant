@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.2.8
+// @version      3.2.9
 // @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording, zoom in/out, change aspect ratio, and much more.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -59,6 +59,8 @@
 // @license      MIT
 // @grant        none
 // ==/UserScript==
+
+/* global jwplayer, flowplayer, rmp */
 
 (function() {
     'use strict';
@@ -1573,22 +1575,21 @@
             observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-        loadVideo();
-        removeAds();
-        initHostBlocker();
-
-        // Pre-initialize the audio graph on the first user interaction
-        const preInitAudio = () => {
-            if (video && !audioContextData) {
+    document.addEventListener('play', (e) => {
+        if (e.target && e.target.tagName === 'VIDEO') {
+            if (!audioContextData) {
+                loadVideo();
                 initAudioGraph();
             }
-            // Remove the listeners once the graph is built so it only runs once
-            document.removeEventListener('click', preInitAudio);
-            document.removeEventListener('keydown', preInitAudio);
-        };
+        }
+    }, true);
 
-        document.addEventListener('click', preInitAudio);
-        document.addEventListener('keydown', preInitAudio);
-    });
+    const wakeUpAudio = () => {
+        if (audioContextData && audioContextData.context.state === 'suspended') {
+            audioContextData.context.resume().catch(() => {});
+        }
+    };
+
+    document.addEventListener('click', wakeUpAudio, { capture: true });
+    document.addEventListener('keydown', wakeUpAudio, { capture: true });
 })();
