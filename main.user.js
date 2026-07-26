@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.2.9
+// @version      3.3.0
 // @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording, zoom in/out, change aspect ratio, and much more.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -103,11 +103,11 @@
 
     const filters = {
         brightness: 1.0,
- hue: 0,
- saturation: 1.0,
- contrast: 1.0,
- special: 'none',
- profile: null
+        hue: 0,
+        saturation: 1.0,
+        contrast: 1.0,
+        special: 'none',
+        profile: null
     };
 
     let playbackSpeed = 1.0;
@@ -168,8 +168,8 @@
     let animationFrameId = null;
     let vizData = {
         time: 0,
- stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
- matrixDrops: Array(100).fill(0)
+        stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
+        matrixDrops: Array(100).fill(0)
     };
 
     // --- Helper Functions ---
@@ -251,10 +251,10 @@
     function getSupportedMimeType() {
         const preferredTypes = [
             'video/webm; codecs=vp9,opus',
- 'video/webm; codecs=vp8,opus',
- 'video/webm',
- 'video/mp4; codecs=h264,aac',
- 'video/mp4'
+            'video/webm; codecs=vp8,opus',
+            'video/webm',
+            'video/mp4; codecs=h264,aac',
+            'video/mp4'
         ];
 
         for (const mimeType of preferredTypes) {
@@ -429,7 +429,7 @@
         const audioStream = audioContextData.streamDestination.stream;
         const combinedStream = new MediaStream([
             ...canvasStream.getVideoTracks(),
-                                               ...audioStream.getAudioTracks()
+            ...audioStream.getAudioTracks()
         ]);
 
         recordingPart = 1;
@@ -453,47 +453,47 @@
                 if (e.data && e.data.size > 0) canvasRecordedChunks.push(e.data);
             };
 
-                canvasMediaRecorder.onstop = () => {
-                    const currentPart = recordingPart;
-                    const blob = new Blob(canvasRecordedChunks, { type: mimeType || 'video/webm' });
-                    canvasRecordedChunks = []; // Clear RAM memory buffer immediately!
+            canvasMediaRecorder.onstop = () => {
+                const currentPart = recordingPart;
+                const blob = new Blob(canvasRecordedChunks, { type: mimeType || 'video/webm' });
+                canvasRecordedChunks = []; // Clear RAM memory buffer immediately!
 
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    document.body.appendChild(a);
-                    a.style = 'display: none';
-                    a.href = url;
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                document.body.appendChild(a);
+                a.style = 'display: none';
+                a.href = url;
 
-                    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-                    a.download = `StreamAssistant_Effects_Recording_Part${currentPart}_${Date.now()}.${ext}`;
-                    a.click();
+                const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+                a.download = `StreamAssistant_Effects_Recording_Part${currentPart}_${Date.now()}.${ext}`;
+                a.click();
 
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
 
-                    if (isAutoSplitting && isCanvasRecording) {
-                        recordingPart++;
-                        isAutoSplitting = false;
-                        if (setupNewRecorder()) {
-                            canvasMediaRecorder.start();
-                            scheduleAutoSplit();
-                        }
-                    } else {
-                        // Manual/Final Stop Cleanup
-                        isCanvasRecording = false;
-                        clearTimeout(canvasSplitTimer);
-                        cancelAnimationFrame(canvasRecordFrameId);
-                        hideRecordingIndicator();
-
-                        if (targetVideo) {
-                            targetVideo.removeEventListener('pause', handleVideoPause);
-                            targetVideo.removeEventListener('play', handleVideoResume);
-                        }
-                        activeVideoForRecordListeners = null;
+                if (isAutoSplitting && isCanvasRecording) {
+                    recordingPart++;
+                    isAutoSplitting = false;
+                    if (setupNewRecorder()) {
+                        canvasMediaRecorder.start();
+                        scheduleAutoSplit();
                     }
-                };
+                } else {
+                    // Manual/Final Stop Cleanup
+                    isCanvasRecording = false;
+                    clearTimeout(canvasSplitTimer);
+                    cancelAnimationFrame(canvasRecordFrameId);
+                    hideRecordingIndicator();
 
-                return true;
+                    if (targetVideo) {
+                        targetVideo.removeEventListener('pause', handleVideoPause);
+                        targetVideo.removeEventListener('play', handleVideoResume);
+                    }
+                    activeVideoForRecordListeners = null;
+                }
+            };
+
+            return true;
         };
 
         const scheduleAutoSplit = () => {
@@ -565,14 +565,14 @@
     function applyHuePalette(index) {
         const huePalettes = {
             1: 'sepia(100%) hue-rotate(280deg) saturate(300%) contrast(1.2)', // Cyberpunk / Synthwave (Magenta/Cyan)
-2: 'sepia(70%) hue-rotate(310deg) saturate(250%) contrast(1.1) brightness(1.1)', // Sunset / Vaporwave (Orange/Pink/Purple)
-3: 'sepia(100%) hue-rotate(90deg) saturate(400%) contrast(1.5) brightness(0.9)', // Matrix / Digital (Neon Green)
-4: 'sepia(100%) hue-rotate(180deg) saturate(150%) contrast(1.2) brightness(1.3)', // Ice / Arctic (Ice Blue)
-5: 'sepia(100%) hue-rotate(350deg) saturate(400%) contrast(1.4) brightness(0.9)', // Fire / Ember (Deep Red/Orange)
-6: 'sepia(50%) hue-rotate(170deg) saturate(150%) contrast(1.3) brightness(0.9)', // Teal and Amber (Complementary Contrast)
-7: 'sepia(30%) hue-rotate(250deg) saturate(80%) contrast(0.85) brightness(1.2)', // Pastel Dreams (Soft Lavender/Mint)
-8: 'sepia(100%) hue-rotate(340deg) saturate(350%) contrast(1.8) brightness(0.6)', // 80s Slasher (Blood Red/Shadows)
-9: 'sepia(40%) hue-rotate(230deg) saturate(180%) contrast(1.1) brightness(0.95)', // 16-bit CRT (Retro SNES Purples)
+            2: 'sepia(70%) hue-rotate(310deg) saturate(250%) contrast(1.1) brightness(1.1)', // Sunset / Vaporwave (Orange/Pink/Purple)
+            3: 'sepia(100%) hue-rotate(90deg) saturate(400%) contrast(1.5) brightness(0.9)', // Matrix / Digital (Neon Green)
+            4: 'sepia(100%) hue-rotate(180deg) saturate(150%) contrast(1.2) brightness(1.3)', // Ice / Arctic (Ice Blue)
+            5: 'sepia(100%) hue-rotate(350deg) saturate(400%) contrast(1.4) brightness(0.9)', // Fire / Ember (Deep Red/Orange)
+            6: 'sepia(50%) hue-rotate(170deg) saturate(150%) contrast(1.3) brightness(0.9)', // Teal and Amber (Complementary Contrast)
+            7: 'sepia(30%) hue-rotate(250deg) saturate(80%) contrast(0.85) brightness(1.2)', // Pastel Dreams (Soft Lavender/Mint)
+            8: 'sepia(100%) hue-rotate(340deg) saturate(350%) contrast(1.8) brightness(0.6)', // 80s Slasher (Blood Red/Shadows)
+            9: 'sepia(40%) hue-rotate(230deg) saturate(180%) contrast(1.1) brightness(0.95)', // 16-bit CRT (Retro SNES Purples)
         };
 
         if (index === 0) {
@@ -881,45 +881,45 @@
             hasAriaLabel ||
             isInputFieldEvent(e)) {
             return;
+        }
+
+        if (!video) loadVideo();
+
+        if (video) {
+            const rect = video.getBoundingClientRect();
+            const isInsideVideo = (
+                e.clientX >= rect.left &&
+                e.clientX <= rect.right &&
+                e.clientY >= rect.top &&
+                e.clientY <= rect.bottom
+            );
+
+            if (!isInsideVideo) {
+                return;
             }
+        }
 
-            if (!video) loadVideo();
+        mouseDownTime = Date.now();
+        isMouseHeldDown = true;
 
-            if (video) {
-                const rect = video.getBoundingClientRect();
-                const isInsideVideo = (
-                    e.clientX >= rect.left &&
-                    e.clientX <= rect.right &&
-                    e.clientY >= rect.top &&
-                    e.clientY <= rect.bottom
-                );
+        mouseHoldTimer = setTimeout(() => {
+            if (isMouseHeldDown) {
+                loadVideo();
+                if (video) {
+                    originalPlaybackSpeed = video.playbackRate || 1.0;
+                    video.playbackRate = 2.0;
 
-                if (!isInsideVideo) {
-                    return;
-                }
-            }
-
-            mouseDownTime = Date.now();
-            isMouseHeldDown = true;
-
-            mouseHoldTimer = setTimeout(() => {
-                if (isMouseHeldDown) {
-                    loadVideo();
-                    if (video) {
-                        originalPlaybackSpeed = video.playbackRate || 1.0;
-                        video.playbackRate = 2.0;
-
-                        if (video.paused) {
-                            video.play().catch(err => console.log(err));
-                        }
-
-                        clearInterval(enforceSpeedInterval);
-                        enforceSpeedInterval = setInterval(() => {
-                            if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
-                        }, 100);
+                    if (video.paused) {
+                        video.play().catch(err => console.log(err));
                     }
+
+                    clearInterval(enforceSpeedInterval);
+                    enforceSpeedInterval = setInterval(() => {
+                        if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
+                    }, 100);
                 }
-            }, config.holdThreshold);
+            }
+        }, config.holdThreshold);
     }
 
     function handleMouseUp(e) {
@@ -1203,10 +1203,10 @@
 
         audioContextData = {
             context, source, analyser, compressor,
- videoGain, bleepGain, bleepOsc, bassFilter, vocalFilter,
- monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
- eqActive: false, compActive: false, monoActive: false,
- streamDestination
+            videoGain, bleepGain, bleepOsc, bassFilter, vocalFilter,
+            monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
+            eqActive: false, compActive: false, monoActive: false,
+            streamDestination
         };
     }
 
@@ -1572,17 +1572,54 @@
             });
             if (shouldRemoveAds) removeAds();
         });
-            observer.observe(document.documentElement, { childList: true, subtree: true });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
-    document.addEventListener('play', (e) => {
-        if (e.target && e.target.tagName === 'VIDEO') {
-            if (!audioContextData) {
-                loadVideo();
-                initAudioGraph();
-            }
+    // --- Pre-Start Engine Initialization System ---
+    function initPreStartEngine() {
+        // Prepare video & audio graph prior to video playback initiation
+        loadVideo();
+        if (video) {
+            initAudioGraph();
         }
-    }, true);
+
+        // Detect video elements immediately when inserted in DOM
+        const videoDOMObserver = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'childList') {
+                    for (const node of mutation.addedNodes) {
+                        if (node.nodeType === 1) {
+                            if (node.tagName === 'VIDEO' || (node.querySelector && node.querySelector('video'))) {
+                                loadVideo();
+                                if (video) {
+                                    initAudioGraph();
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        videoDOMObserver.observe(document.documentElement || document.body, {
+            childList: true,
+            subtree: true
+        });
+
+        // Intercept early video events in capture phase before start of stream playback
+        const earlyEvents = ['loadstart', 'loadedmetadata', 'canplay', 'pointerdown', 'touchstart', 'play', 'playing'];
+        earlyEvents.forEach(evt => {
+            document.addEventListener(evt, (e) => {
+                if (!video || e.target?.tagName === 'VIDEO') {
+                    loadVideo();
+                    if (video) {
+                        initAudioGraph();
+                    }
+                }
+            }, true);
+        });
+    }
 
     const wakeUpAudio = () => {
         if (audioContextData && audioContextData.context.state === 'suspended') {
@@ -1592,4 +1629,8 @@
 
     document.addEventListener('click', wakeUpAudio, { capture: true });
     document.addEventListener('keydown', wakeUpAudio, { capture: true });
+
+    // Initialize early detection engine and host blocker
+    initPreStartEngine();
+    initHostBlocker();
 })();
