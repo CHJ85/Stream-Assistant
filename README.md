@@ -9,7 +9,6 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - Visual Enhancements: Aspect ratio control, zoom control and custom color/brightness filters.
 - Advanced Audio: EQ (Bass/Vocal), Mono/Stereo switching, and dynamic range compression.
 - Recording: Raw video recording (browser-based, auto-pausing).
-- Ad Blocking: Integrated host-based blocking for uninterrupted viewing.
 
 # Keyboard shortcuts
 **Playback & Navigation**
@@ -25,7 +24,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - **. / ,** - Next / previous frame (frame stepping)
 - ** Shift + L** - A-B loop (use shift+l to mart start point, end point and to cancel the loop)
 
-**Audio & Sound**
+**Audio & Sound (Works only with DRM-free content)**
 - **Up / Down** - Volume control
 - **M** - Mute / unmute
 - **V** - Toggle volume normalizer on/off (dynamic range compression)
@@ -120,10 +119,6 @@ Stream Assistant bridges the gap between basic video players and power-user need
 # Installation
 1. Install a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/).<br>
 2. Install the [script](https://github.com/CHJ85/Stream-Assistant/raw/main/main.user.js)
-
-# Ad blocking
-This script does not block in-house ads such as self-promotion.<br>
-And note that if an ad is not blocked, this script gives you numerous ways to fast forward.
 
 # Support
 If you're having technical issues or feature requests, please open an Issue.
