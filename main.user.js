@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.3.1
+// @version      3.3.2
 // @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording, zoom in/out, change aspect ratio, and much more.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -22,6 +22,7 @@
 // @match        https://www.amcplus.com/*
 // @match        https://*.crunchyroll.com/*
 // @match        https://www.magellantv.com/*
+// @match        https://watch.spectrum.net/*
 // @match        https://watch.sling.com/*
 // @match        https://fawesome.tv/*
 // @match        https://app.plex.tv/*
@@ -54,7 +55,7 @@
 // @downloadURL  https://github.com/chj85/Stream-Assistant/raw/main/main.user.js
 // @icon         https://i.imgur.com/pwiVt0N.png
 // @homepageURL  https://github.com/CHJ85/Stream-Assistant/blob/main/README.md
-// @supportURL   https://github.com/CHJ85/Stream-Assistant/issues
+// @supportURL   https://github.com/chj85/Stream-Assistant/issues
 // @license      MIT
 // @grant        none
 // ==/UserScript==
@@ -63,6 +64,30 @@
 
 (function() {
     'use strict';
+
+    // --- DRM Detection & Audio Bypass Safeguard ---
+    let isDrmDetected = false;
+
+    // 1. Intercept navigator DRM requests
+    if (navigator.requestMediaKeySystemAccess) {
+        const originalRequest = navigator.requestMediaKeySystemAccess;
+        navigator.requestMediaKeySystemAccess = function() {
+            isDrmDetected = true;
+            console.log("Stream Assistant: DRM capability requested. Bypassing Web Audio to prevent playback failure.");
+            return originalRequest.apply(this, arguments);
+        };
+    }
+
+    // 2. Intercept binding of DRM keys to the video element
+    const originalSetMediaKeys = HTMLMediaElement.prototype.setMediaKeys;
+    HTMLMediaElement.prototype.setMediaKeys = function(mediaKeys) {
+        if (mediaKeys) {
+            this.dataset.isDrmProtected = "true";
+            isDrmDetected = true;
+            console.log("Stream Assistant: DRM keys bound to element. Bypassing Web Audio.");
+        }
+        return originalSetMediaKeys.apply(this, arguments);
+    };
 
     // --- Configuration ---
     const config = {
@@ -102,11 +127,11 @@
 
     const filters = {
         brightness: 1.0,
- hue: 0,
- saturation: 1.0,
- contrast: 1.0,
- special: 'none',
- profile: null
+        hue: 0,
+        saturation: 1.0,
+        contrast: 1.0,
+        special: 'none',
+        profile: null
     };
 
     let playbackSpeed = 1.0;
@@ -167,8 +192,8 @@
     let animationFrameId = null;
     let vizData = {
         time: 0,
- stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
- matrixDrops: Array(100).fill(0)
+        stars: Array.from({length: 150}, () => ({ x: Math.random()*2-1, y: Math.random()*2-1, z: Math.random() })),
+        matrixDrops: Array(100).fill(0)
     };
 
     // --- Helper Functions ---
@@ -250,10 +275,10 @@
     function getSupportedMimeType() {
         const preferredTypes = [
             'video/webm; codecs=vp9,opus',
- 'video/webm; codecs=vp8,opus',
- 'video/webm',
- 'video/mp4; codecs=h264,aac',
- 'video/mp4'
+            'video/webm; codecs=vp8,opus',
+            'video/webm',
+            'video/mp4; codecs=h264,aac',
+            'video/mp4'
         ];
 
         for (const mimeType of preferredTypes) {
@@ -322,13 +347,6 @@
     function toggleRecording() {
         if (!video) loadVideo();
         if (!video) return;
-
-        if (isRecording) {
-            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-                mediaRecorder.stop();
-            }
-            return;
-        }
 
         const stream = video.captureStream ? video.captureStream() : video.mozCaptureStream ? video.mozCaptureStream() : null;
         if (!stream) {
@@ -428,7 +446,7 @@
         const audioStream = audioContextData.streamDestination.stream;
         const combinedStream = new MediaStream([
             ...canvasStream.getVideoTracks(),
-                                               ...audioStream.getAudioTracks()
+            ...audioStream.getAudioTracks()
         ]);
 
         recordingPart = 1;
@@ -452,47 +470,47 @@
                 if (e.data && e.data.size > 0) canvasRecordedChunks.push(e.data);
             };
 
-                canvasMediaRecorder.onstop = () => {
-                    const currentPart = recordingPart;
-                    const blob = new Blob(canvasRecordedChunks, { type: mimeType || 'video/webm' });
-                    canvasRecordedChunks = []; // Clear RAM memory buffer immediately!
+            canvasMediaRecorder.onstop = () => {
+                const currentPart = recordingPart;
+                const blob = new Blob(canvasRecordedChunks, { type: mimeType || 'video/webm' });
+                canvasRecordedChunks = []; // Clear RAM memory buffer immediately!
 
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    document.body.appendChild(a);
-                    a.style = 'display: none';
-                    a.href = url;
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                document.body.appendChild(a);
+                a.style = 'display: none';
+                a.href = url;
 
-                    const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-                    a.download = `StreamAssistant_Effects_Recording_Part${currentPart}_${Date.now()}.${ext}`;
-                    a.click();
+                const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+                a.download = `StreamAssistant_Effects_Recording_Part${currentPart}_${Date.now()}.${ext}`;
+                a.click();
 
-                    window.URL.revokeObjectURL(url);
-                    document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
 
-                    if (isAutoSplitting && isCanvasRecording) {
-                        recordingPart++;
-                        isAutoSplitting = false;
-                        if (setupNewRecorder()) {
-                            canvasMediaRecorder.start();
-                            scheduleAutoSplit();
-                        }
-                    } else {
-                        // Manual/Final Stop Cleanup
-                        isCanvasRecording = false;
-                        clearTimeout(canvasSplitTimer);
-                        cancelAnimationFrame(canvasRecordFrameId);
-                        hideRecordingIndicator();
-
-                        if (targetVideo) {
-                            targetVideo.removeEventListener('pause', handleVideoPause);
-                            targetVideo.removeEventListener('play', handleVideoResume);
-                        }
-                        activeVideoForRecordListeners = null;
+                if (isAutoSplitting && isCanvasRecording) {
+                    recordingPart++;
+                    isAutoSplitting = false;
+                    if (setupNewRecorder()) {
+                        canvasMediaRecorder.start();
+                        scheduleAutoSplit();
                     }
-                };
+                } else {
+                    // Manual/Final Stop Cleanup
+                    isCanvasRecording = false;
+                    clearTimeout(canvasSplitTimer);
+                    cancelAnimationFrame(canvasRecordFrameId);
+                    hideRecordingIndicator();
 
-                return true;
+                    if (targetVideo) {
+                        targetVideo.removeEventListener('pause', handleVideoPause);
+                        targetVideo.removeEventListener('play', handleVideoResume);
+                    }
+                    activeVideoForRecordListeners = null;
+                }
+            };
+
+            return true;
         };
 
         const scheduleAutoSplit = () => {
@@ -564,14 +582,14 @@
     function applyHuePalette(index) {
         const huePalettes = {
             1: 'sepia(100%) hue-rotate(280deg) saturate(300%) contrast(1.2)', // Cyberpunk / Synthwave (Magenta/Cyan)
-2: 'sepia(70%) hue-rotate(310deg) saturate(250%) contrast(1.1) brightness(1.1)', // Sunset / Vaporwave (Orange/Pink/Purple)
-3: 'sepia(100%) hue-rotate(90deg) saturate(400%) contrast(1.5) brightness(0.9)', // Matrix / Digital (Neon Green)
-4: 'sepia(100%) hue-rotate(180deg) saturate(150%) contrast(1.2) brightness(1.3)', // Ice / Arctic (Ice Blue)
-5: 'sepia(100%) hue-rotate(350deg) saturate(400%) contrast(1.4) brightness(0.9)', // Fire / Ember (Deep Red/Orange)
-6: 'sepia(50%) hue-rotate(170deg) saturate(150%) contrast(1.3) brightness(0.9)', // Teal and Amber (Complementary Contrast)
-7: 'sepia(30%) hue-rotate(250deg) saturate(80%) contrast(0.85) brightness(1.2)', // Pastel Dreams (Soft Lavender/Mint)
-8: 'sepia(100%) hue-rotate(340deg) saturate(350%) contrast(1.8) brightness(0.6)', // 80s Slasher (Blood Red/Shadows)
-9: 'sepia(40%) hue-rotate(230deg) saturate(180%) contrast(1.1) brightness(0.95)', // 16-bit CRT (Retro SNES Purples)
+            2: 'sepia(70%) hue-rotate(310deg) saturate(250%) contrast(1.1) brightness(1.1)', // Sunset / Vaporwave (Orange/Pink/Purple)
+            3: 'sepia(100%) hue-rotate(90deg) saturate(400%) contrast(1.5) brightness(0.9)', // Matrix / Digital (Neon Green)
+            4: 'sepia(100%) hue-rotate(180deg) saturate(150%) contrast(1.2) brightness(1.3)', // Ice / Arctic (Ice Blue)
+            5: 'sepia(100%) hue-rotate(350deg) saturate(400%) contrast(1.4) brightness(0.9)', // Fire / Ember (Deep Red/Orange)
+            6: 'sepia(50%) hue-rotate(170deg) saturate(150%) contrast(1.3) brightness(0.9)', // Teal and Amber (Complementary Contrast)
+            7: 'sepia(30%) hue-rotate(250deg) saturate(80%) contrast(0.85) brightness(1.2)', // Pastel Dreams (Soft Lavender/Mint)
+            8: 'sepia(100%) hue-rotate(340deg) saturate(350%) contrast(1.8) brightness(0.6)', // 80s Slasher (Blood Red/Shadows)
+            9: 'sepia(40%) hue-rotate(230deg) saturate(180%) contrast(1.1) brightness(0.95)', // 16-bit CRT (Retro SNES Purples)
         };
 
         if (index === 0) {
@@ -894,45 +912,45 @@
             hasAriaLabel ||
             isInputFieldEvent(e)) {
             return;
+        }
+
+        if (!video) loadVideo();
+
+        if (video) {
+            const rect = video.getBoundingClientRect();
+            const isInsideVideo = (
+                e.clientX >= rect.left &&
+                e.clientX <= rect.right &&
+                e.clientY >= rect.top &&
+                e.clientY <= rect.bottom
+            );
+
+            if (!isInsideVideo) {
+                return;
             }
+        }
 
-            if (!video) loadVideo();
+        mouseDownTime = Date.now();
+        isMouseHeldDown = true;
 
-            if (video) {
-                const rect = video.getBoundingClientRect();
-                const isInsideVideo = (
-                    e.clientX >= rect.left &&
-                    e.clientX <= rect.right &&
-                    e.clientY >= rect.top &&
-                    e.clientY <= rect.bottom
-                );
+        mouseHoldTimer = setTimeout(() => {
+            if (isMouseHeldDown) {
+                loadVideo();
+                if (video) {
+                    originalPlaybackSpeed = video.playbackRate || 1.0;
+                    video.playbackRate = 2.0;
 
-                if (!isInsideVideo) {
-                    return;
-                }
-            }
-
-            mouseDownTime = Date.now();
-            isMouseHeldDown = true;
-
-            mouseHoldTimer = setTimeout(() => {
-                if (isMouseHeldDown) {
-                    loadVideo();
-                    if (video) {
-                        originalPlaybackSpeed = video.playbackRate || 1.0;
-                        video.playbackRate = 2.0;
-
-                        if (video.paused) {
-                            video.play().catch(err => console.log(err));
-                        }
-
-                        clearInterval(enforceSpeedInterval);
-                        enforceSpeedInterval = setInterval(() => {
-                            if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
-                        }, 100);
+                    if (video.paused) {
+                        video.play().catch(err => console.log(err));
                     }
+
+                    clearInterval(enforceSpeedInterval);
+                    enforceSpeedInterval = setInterval(() => {
+                        if (video && video.playbackRate !== 2.0) video.playbackRate = 2.0;
+                    }, 100);
                 }
-            }, config.holdThreshold);
+            }
+        }, config.holdThreshold);
     }
 
     function handleMouseUp(e) {
@@ -1119,6 +1137,12 @@
         if (!video) loadVideo();
         if (!video) return;
 
+        // Bypasses Web Audio API hook-in if DRM is active to preserve native playback
+        if (isDrmDetected || video.mediaKeys || video.dataset.isDrmProtected === "true") {
+            console.log("Stream Assistant: Skipping Web Audio API connection due to active DRM.");
+            return;
+        }
+
         if (audioContextData) {
             if (audioContextData.context.state === 'suspended') {
                 audioContextData.context.resume().catch(() => {});
@@ -1216,10 +1240,10 @@
 
         audioContextData = {
             context, source, analyser, compressor,
- videoGain, bleepGain, bleepOsc, bassFilter, vocalFilter,
- monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
- eqActive: false, compActive: false, monoActive: false,
- streamDestination
+            videoGain, bleepGain, bleepOsc, bassFilter, vocalFilter,
+            monoDryGain, monoWetGain, surroundDryGain, surroundWetGain, compDryGain, compWetGain,
+            eqActive: false, compActive: false, monoActive: false,
+            streamDestination
         };
     }
 
@@ -1543,58 +1567,15 @@
         }
     }
 
-    // --- Ad & Host Blocking ---
-    function removeAds() {
-        document.querySelectorAll('[class^="AdInfoBar-message-"], [class^="AdsContainer-"], .abvsVideo').forEach(el => el.remove());
-    }
-
-    function initHostBlocker() {
-        const CACHE_KEY = 'StreamAssistant_HostsCache';
-        const CACHE_TIME = 24 * 60 * 60 * 1000;
-        const cachedData = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
-        if (cachedData && (Date.now() - cachedData.timestamp < CACHE_TIME)) observeForAds(cachedData.hosts);
-        else {
-            fetch('https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts')
-            .then(res => res.text())
-            .then(text => {
-                const blockedHosts = text.split('\n').filter(line => line.startsWith('0.0.0.0')).map(line => line.split(' ')[1]);
-                localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), hosts: blockedHosts }));
-                observeForAds(blockedHosts);
-            }).catch(err => console.error('Failed to fetch hosts:', err));
-        }
-    }
-
-    function observeForAds(blockedHosts) {
-        const observer = new MutationObserver(mutations => {
-            let shouldRemoveAds = false;
-            mutations.forEach(mutation => {
-                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                    mutation.addedNodes.forEach(node => {
-                        if (node.tagName === 'VIDEO') {
-                            if (node.src && blockedHosts.some(host => node.src.includes(host))) {
-                                node.pause();
-                                node.remove();
-                                if (node === video) video = null;
-                            }
-                        }
-                        if (node.nodeType === 1 && (node.className && typeof node.className === 'string' && (node.className.includes('AdInfoBar') || node.className.includes('AdsContainer') || node.className.includes('abvsVideo')))) {
-                            shouldRemoveAds = true;
-                        }
-                    });
-                }
-            });
-            if (shouldRemoveAds) removeAds();
-        });
-            observer.observe(document.documentElement, { childList: true, subtree: true });
-    }
-
     // --- Pre-Start Engine Initialization System ---
     function initPreStartEngine() {
-        // Prepare video & audio graph prior to video playback initiation
-        loadVideo();
-        if (video) {
-            initAudioGraph();
-        }
+        // Run with a micro-delay to allow synchronous DRM setup to fire its intercept first
+        setTimeout(() => {
+            loadVideo();
+            if (video) {
+                initAudioGraph();
+            }
+        }, 50);
 
         // Detect video elements immediately when inserted in DOM
         const videoDOMObserver = new MutationObserver((mutations) => {
@@ -1603,10 +1584,12 @@
                     for (const node of mutation.addedNodes) {
                         if (node.nodeType === 1) {
                             if (node.tagName === 'VIDEO' || (node.querySelector && node.querySelector('video'))) {
-                                loadVideo();
-                                if (video) {
-                                    initAudioGraph();
-                                }
+                                setTimeout(() => {
+                                    loadVideo();
+                                    if (video) {
+                                        initAudioGraph();
+                                    }
+                                }, 50);
                                 break;
                             }
                         }
@@ -1625,10 +1608,12 @@
         earlyEvents.forEach(evt => {
             document.addEventListener(evt, (e) => {
                 if (!video || e.target?.tagName === 'VIDEO') {
-                    loadVideo();
-                    if (video) {
-                        initAudioGraph();
-                    }
+                    setTimeout(() => {
+                        loadVideo();
+                        if (video) {
+                            initAudioGraph();
+                        }
+                    }, 50);
                 }
             }, true);
         });
@@ -1645,5 +1630,4 @@
 
     // Initialize early detection engine and host blocker
     initPreStartEngine();
-    initHostBlocker();
 })();
