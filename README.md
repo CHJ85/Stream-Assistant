@@ -109,6 +109,7 @@ Stream Assistant bridges the gap between basic video players and power-user need
 - Rumble
 - Sling TV
 - Spectrum
+- Substack
 - The Roku Channel
 - Tubi
 - Twitch
