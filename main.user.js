@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Stream Assistant − Keyboard Shortcuts, Features for Streaming Services
 // @namespace    https://github.com/chj85/Stream-Assistant
-// @version      3.3.2
+// @version      3.3.3
 // @description  Adds keyboard shortcuts, filters, EQ controls, visualizers, video recording, zoom in/out, change aspect ratio, and much more.
 // @author       CHJ85
 // @match        https://*.max.com/*
@@ -32,6 +32,7 @@
 // @match        https://www.disneyplus.com/*
 // @match        https://vaughn.live/*
 // @match        https://tubitv.com/*
+// @match        https://*.substack.com/*
 // @match        https://www.hidive.com/*
 // @match        https://www.retrocrush.tv/*
 // @match        https://www.dovechannel.com/*
